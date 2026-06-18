@@ -1,0 +1,23 @@
+{
+  "active_plan": "/Users/yukebrillianth/IRIS/thesis/.sisyphus/plans/voice-assistant-thesis.md",
+  "started_at": "2026-06-18T14:19:46.758Z",
+  "session_ids": [
+    "ses_1250915efffegXnlnoAb5cze6P"
+  ],
+  "session_origins": {
+    "ses_1250915efffegXnlnoAb5cze6P": "direct"
+  },
+  "plan_name": "voice-assistant-thesis",
+  "agent": "atlas",
+  "task_sessions": {
+    "todo:1": {
+      "task_key": "todo:1",
+      "task_label": "1",
+      "task_title": "Project scaffold + configuration contract",
+      "session_id": "ses_124e4dd3affeR3lUoHJXWp9d27",
+      "agent": "Red Guard",
+      "category": "quick",
+      "updated_at": "2026-06-18T14:25:20.112Z"
+    }
+  }
+}

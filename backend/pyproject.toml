@@ -1,0 +1,15 @@
+[project]
+name = "voice-assistant-thesis-backend"
+version = "0.1.0"
+description = "FastAPI backend for the voice assistant thesis web app"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "pydantic-settings",
+    "python-multipart",
+    "python-dotenv",
+]
+
+[tool.uvicorn]
+factory = false

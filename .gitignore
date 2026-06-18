@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+.venv/
+backend/.venv/
+
+# Build
+frontend/.next/
+frontend/out/
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Python
+backend/.env
+__pycache__/
+backend/__pycache__/
+backend/app/__pycache__/
+*.pyc
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sisyphus evidence (not version controlled)
+.sisyphus/evidence/
+
+# Audio files
+backend/audio/
+*.wav
+*.mp3
+*.webm
