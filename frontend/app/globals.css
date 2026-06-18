@@ -1,26 +1,85 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f5f1e8;
+  --foreground: #17130c;
+  --surface: #fffaf0;
+  --surface-strong: #f1e5ce;
+  --surface-muted: #e6dcc9;
+  --ink: #17130c;
+  --ink-muted: #695f4d;
+  --line: #d7c5a7;
+  --line-strong: #a98b5d;
+  --accent: #d94f2b;
+  --accent-strong: #9f2e17;
+  --accent-soft: #f2c2a7;
+  --success: #28704f;
+  --success-soft: #cfe8d9;
+  --warning: #a96b00;
+  --warning-soft: #f6dfa8;
+  --error: #a72f27;
+  --error-soft: #f3c8c3;
+  --info: #245a7e;
+  --info-soft: #c8ddeb;
+  --shadow-soft: 0 18px 50px rgb(55 38 18 / 0.14);
+  --shadow-card: 0 10px 30px rgb(55 38 18 / 0.1);
+  --radius-card: 1.25rem;
+  --radius-panel: 1.75rem;
+  --spacing-panel: 1.5rem;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
+  --color-surface-muted: var(--surface-muted);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-error: var(--error);
+  --color-error-soft: var(--error-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), ui-sans-serif, sans-serif;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+.debug-grid {
+  background-image:
+    linear-gradient(rgb(169 139 93 / 0.13) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(169 139 93 / 0.13) 1px, transparent 1px),
+    radial-gradient(circle at top left, rgb(217 79 43 / 0.17), transparent 34rem),
+    radial-gradient(circle at bottom right, rgb(36 90 126 / 0.13), transparent 32rem);
+  background-size: 2rem 2rem, 2rem 2rem, 100% 100%, 100% 100%;
+}
+
+.paper-panel {
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(18px);
+}
+
+.text-balance {
+  text-wrap: balance;
 }

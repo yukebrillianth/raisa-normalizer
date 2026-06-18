@@ -34,3 +34,5 @@ backend/audio/
 *.wav
 *.mp3
 *.webm
+
+.sisyphus

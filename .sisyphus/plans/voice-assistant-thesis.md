@@ -376,7 +376,7 @@ Wave FINAL:
   **Commit**: YES
   - Message: `chore(scaffold): initialize thesis voice assistant app`
 
-- [ ] 2. DB schema inspection + safe data-access layer
+- [x] 2. DB schema inspection + safe data-access layer
 
   **What to do**:
   - Implement DB connection layer using `DATABASE_URL`.
@@ -432,7 +432,7 @@ Wave FINAL:
   **Commit**: YES
   - Message: `feat(db): inspect qa table and pgvector health`
 
-- [ ] 3. Frontend shell + thesis/debug UI layout
+- [x] 3. Frontend shell + thesis/debug UI layout
 
   **What to do**:
   - Build Next.js shell with thesis-oriented layout.
@@ -487,7 +487,7 @@ Wave FINAL:
   **Commit**: YES
   - Message: `feat(ui): add thesis debug dashboard shell`
 
-- [ ] 4. Audio recording/upload design
+- [x] 4. Audio recording/upload design
 
   **What to do**:
   - Implement browser MediaRecorder push-to-talk/click-to-record.
@@ -543,7 +543,7 @@ Wave FINAL:
   **Commit**: YES
   - Message: `feat(ui): add push to talk recording controls`
 
-- [ ] 5. Backend provider interfaces + response schema
+- [x] 5. Backend provider interfaces + response schema
 
   **What to do**:
   - Define provider interfaces/contracts for STT, normalizer, embedding, retrieval/baseline rerank, LLM selection+verbalization, TTS, and SSE event streaming.
@@ -597,7 +597,7 @@ Wave FINAL:
   **Commit**: YES
   - Message: `feat(api): define voice pipeline provider contracts`
 
-- [ ] 6. Deployment/README skeleton for GPU lab
+- [x] 6. Deployment/README skeleton for GPU lab
 
   **What to do**:
   - Create README sections for prerequisites: Python, Node, CUDA/GPU, PostgreSQL/pgvector, OpenAI API, model paths.
