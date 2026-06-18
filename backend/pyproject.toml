@@ -10,6 +10,7 @@ dependencies = [
     "python-multipart",
     "python-dotenv",
     "httpx",
+    "psycopg2-binary",
 ]
 
 [tool.uvicorn]

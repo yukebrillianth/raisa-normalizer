@@ -45,6 +45,18 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/pipeline", tags=["pipeline"])
 
+ALLOWED_NORMALIZER_PROVIDERS = {"alpaca", "vllm"}
+ALLOWED_TTS_PROVIDERS = {"supertonic", "openai"}
+PIPELINE_STAGES = [
+    "stt",
+    "normalize",
+    "embed",
+    "retrieve",
+    "baseline_rerank",
+    "select_and_verbalize",
+    "tts",
+]
+
 _SSE_HEADERS = {
     "Cache-Control": "no-cache",
     "Connection": "keep-alive",
@@ -65,6 +77,14 @@ def _sse_event(event: str, data: Any) -> str:
 async def _emit(queue: asyncio.Queue[bytes], event: str, data: Any) -> None:
     """Enqueue an SSE serialised event."""
     await queue.put(_sse_event(event, data).encode("utf-8"))
+
+
+def _safe_error_detail(exc: Exception) -> str:
+    """Return a useful but non-sensitive error string for SSE/debug payloads."""
+    text = str(exc).replace("\n", " ").strip()
+    if len(text) > 300:
+        text = f"{text[:300]}..."
+    return text or exc.__class__.__name__
 
 
 def _has_passed_threshold(candidates: list[Any], threshold: float) -> bool:
@@ -88,11 +108,62 @@ def _normalizer_for_provider(provider_name: str) -> Any:
     return AlpacaNormalizerProvider.get_instance()
 
 
+def _validate_provider_options(normalizer_provider: str | None, tts_provider: str | None) -> tuple[str | None, str | None]:
+    """Validate optional client-selected providers."""
+    if normalizer_provider is not None and normalizer_provider not in ALLOWED_NORMALIZER_PROVIDERS:
+        raise HTTPException(status_code=422, detail="Unsupported normalizer_provider")
+    if tts_provider is not None and tts_provider not in ALLOWED_TTS_PROVIDERS:
+        raise HTTPException(status_code=422, detail="Unsupported tts_provider")
+    return normalizer_provider, tts_provider
+
+
 def _tts_provider_for_name(provider_name: str) -> Any:
     """Resolve TTS provider."""
     if provider_name == "openai":
         return OpenAITTSProvider()
     return SupertonicTTSProvider()
+
+
+def _validated_spoken_answer(spoken_answer: str, selected_answer: str) -> str:
+    """Prevent TTS from speaking unrelated or instruction-like LLM text."""
+    candidate = spoken_answer.strip()
+    if not candidate:
+        return selected_answer
+    lowered = candidate.lower()
+    suspicious_markers = ("###", "```", "<script", "http://", "https://", "abaikan", "ignore previous")
+    if any(marker in lowered for marker in suspicious_markers):
+        return selected_answer
+    answer_terms = {word.strip(".,;:!?()[]{}\"'").lower() for word in selected_answer.split() if len(word) >= 4}
+    spoken_terms = {word.strip(".,;:!?()[]{}\"'").lower() for word in candidate.split() if len(word) >= 4}
+    if answer_terms and len(answer_terms & spoken_terms) / max(len(answer_terms), 1) < 0.25:
+        return selected_answer
+    return candidate
+
+
+async def _emit_stage_complete_for_error(
+    queue: asyncio.Queue[bytes], request_id: str, stage: str, message: str
+) -> None:
+    await _emit(queue, "stage_complete", StageCompleteEvent(
+        request_id=request_id,
+        stage=stage,
+        data={"failed": True, "reason": message},
+    ).model_dump())
+
+
+async def _read_limited_upload(upload: UploadFile, max_bytes: int) -> bytes:
+    """Read an UploadFile in chunks, aborting when max_bytes is exceeded."""
+    chunks: list[bytes] = []
+    total = 0
+    chunk_size = 1024 * 1024
+    while True:
+        chunk = await upload.read(chunk_size)
+        if not chunk:
+            break
+        total += len(chunk)
+        if total > max_bytes:
+            raise HTTPException(status_code=400, detail="Audio exceeds configured upload limit")
+        chunks.append(chunk)
+    return b"".join(chunks)
 
 
 async def _run_pipeline(
@@ -128,11 +199,13 @@ async def _run_pipeline(
             stt_result = await stt_provider.process(audio_bytes)
     except STTProviderError as exc:
         logger.error("STT failed: %s", exc)
+        detail = _safe_error_detail(exc)
         await _emit(queue, "stage_error", StageErrorEvent(
             request_id=request_id, stage="stt",
-            message=exc.code, detail=str(exc), recoverable=False,
+            message=exc.code, detail=detail, recoverable=False,
         ).model_dump())
-        errors.append(StageError(stage="stt", message=exc.code, detail=str(exc)))
+        errors.append(StageError(stage="stt", message=exc.code, detail=detail))
+        await _emit_stage_complete_for_error(queue, request_id, "stt", exc.code)
         # STT failure is fatal — use empty transcript, stop pipeline
         return PipelineResponse(
             request_id=request_id,
@@ -144,11 +217,13 @@ async def _run_pipeline(
         )
     except Exception as exc:
         logger.exception("Unexpected STT error")
+        detail = _safe_error_detail(exc)
         await _emit(queue, "stage_error", StageErrorEvent(
             request_id=request_id, stage="stt",
-            message="STT_API_ERROR", detail=str(exc), recoverable=False,
+            message="STT_API_ERROR", detail=detail, recoverable=False,
         ).model_dump())
-        errors.append(StageError(stage="stt", message="STT_UNEXPECTED", detail=str(exc)))
+        errors.append(StageError(stage="stt", message="STT_UNEXPECTED", detail=detail))
+        await _emit_stage_complete_for_error(queue, request_id, "stt", "STT_API_ERROR")
         return PipelineResponse(
             request_id=request_id, transcript="",
             answer=settings.fallback_answer, spoken_answer=settings.fallback_answer,
@@ -193,10 +268,11 @@ async def _run_pipeline(
 
     except Exception as exc:
         logger.warning("Normalization failed, falling back to raw transcript: %s", exc)
-        errors.append(StageError(stage="normalize", message=str(exc)))
+        detail = _safe_error_detail(exc)
+        errors.append(StageError(stage="normalize", message="NORMALIZE_ERROR", detail=detail))
         await _emit(queue, "stage_error", StageErrorEvent(
             request_id=request_id, stage="normalize",
-            message=str(exc), recoverable=True,
+            message="NORMALIZE_ERROR", detail=detail, recoverable=True,
         ).model_dump())
         # Fallback to raw transcript — proceed with pipeline
         normalized_query = transcript
@@ -214,11 +290,13 @@ async def _run_pipeline(
             embedding = await embedding_provider.process(normalized_query)
     except Exception as exc:
         logger.exception("Embedding failed")
+        detail = _safe_error_detail(exc)
         await _emit(queue, "stage_error", StageErrorEvent(
             request_id=request_id, stage="embed",
-            message=str(exc), detail=str(exc), recoverable=False,
+            message="EMBED_ERROR", detail=detail, recoverable=False,
         ).model_dump())
-        errors.append(StageError(stage="embed", message="EMBED_ERROR", detail=str(exc)))
+        errors.append(StageError(stage="embed", message="EMBED_ERROR", detail=detail))
+        await _emit_stage_complete_for_error(queue, request_id, "embed", "EMBED_ERROR")
         return PipelineResponse(
             request_id=request_id, transcript=transcript,
             normalized_query=normalized_query,
@@ -247,11 +325,13 @@ async def _run_pipeline(
             )
     except Exception as exc:
         logger.exception("Retrieval failed")
+        detail = _safe_error_detail(exc)
         await _emit(queue, "stage_error", StageErrorEvent(
             request_id=request_id, stage="retrieve",
-            message=str(exc), detail=str(exc), recoverable=False,
+            message="RETRIEVE_ERROR", detail=detail, recoverable=False,
         ).model_dump())
-        errors.append(StageError(stage="retrieve", message="RETRIEVE_ERROR", detail=str(exc)))
+        errors.append(StageError(stage="retrieve", message="RETRIEVE_ERROR", detail=detail))
+        await _emit_stage_complete_for_error(queue, request_id, "retrieve", "RETRIEVE_ERROR")
         return PipelineResponse(
             request_id=request_id, transcript=transcript,
             normalized_query=normalized_query,
@@ -279,7 +359,7 @@ async def _run_pipeline(
         request_id=request_id, stage="baseline_rerank",
     ).model_dump())
 
-    if not retrieval_result.answered or not _has_passed_threshold(candidates_list, threshold):
+    if not _has_passed_threshold(candidates_list, threshold):
         logger.info("Threshold gate: no candidate passes similarity threshold (%.2f). Using fallback.", threshold)
         # Skipping LLM selection — all candidates below threshold
         await _emit(queue, "stage_complete", StageCompleteEvent(
@@ -333,6 +413,7 @@ async def _run_pipeline(
                 selected_rank=selected_rank if isinstance(selected_rank, int) else None,
                 selected_question=selected_question,
                 selected_answer=selection_data.get("selected_answer", ""),
+                spoken_answer=selection_data.get("spoken_answer", ""),
                 reason=selection_data.get("reason", ""),
                 latency_ms=selection_data.get("latency_ms", 0.0),
                 fallback_used=selection_data.get("fallback_used", False),
@@ -345,9 +426,10 @@ async def _run_pipeline(
                 # is always copied from the selected retrieved candidate.
                 selected_candidate = candidates_list[selected_rank - 1]
                 answer_text = selected_candidate.answer
-                spoken_answer_text = selection_data.get("spoken_answer", "") or answer_text
+                spoken_answer_text = _validated_spoken_answer(selection_data.get("spoken_answer", ""), answer_text)
                 llm_selection.selected_question = selected_candidate.question
                 llm_selection.selected_answer = selected_candidate.answer
+                llm_selection.spoken_answer = spoken_answer_text
             else:
                 # LLM refused — use the configured fallback answer, never a baseline answer.
                 logger.info("LLM refused selection: %s", llm_selection.refusal_reason)
@@ -361,10 +443,11 @@ async def _run_pipeline(
 
         except Exception as exc:
             logger.warning("LLM Selection+Verbalization failed: %s", exc)
-            errors.append(StageError(stage="select_and_verbalize", message=str(exc)))
+            detail = _safe_error_detail(exc)
+            errors.append(StageError(stage="select_and_verbalize", message="SELECT_VERBALIZE_ERROR", detail=detail))
             await _emit(queue, "stage_error", StageErrorEvent(
                 request_id=request_id, stage="select_and_verbalize",
-                message=str(exc), recoverable=True,
+                message="SELECT_VERBALIZE_ERROR", detail=detail, recoverable=True,
             ).model_dump())
             # Fallback to baseline selected answer
             if baseline:
@@ -377,7 +460,7 @@ async def _run_pipeline(
                 selected_rank=None,
                 fallback_used=True,
                 refused=False,
-                reason=f"Selection provider error: {exc}",
+                reason="Selection provider error",
             )
 
     # -----------------------------------------------------------------
@@ -393,9 +476,19 @@ async def _run_pipeline(
         tts_provider_name = tts_provider_override or settings.tts_provider
         tts_provider = _tts_provider_for_name(tts_provider_name)
         with timing.stage("tts"):
-            tts_data = await tts_provider.process(
-                text=spoken_answer_text, request_id=request_id,
-            )
+            try:
+                tts_data = await tts_provider.process(
+                    text=spoken_answer_text, request_id=request_id,
+                )
+            except Exception as primary_exc:
+                logger.warning("Primary TTS failed: %s. Trying fallback.", primary_exc)
+                if tts_provider_name != "openai":
+                    fallback_provider = OpenAITTSProvider()
+                    tts_data = await fallback_provider.process(
+                        text=spoken_answer_text, request_id=request_id,
+                    )
+                else:
+                    raise primary_exc
         tts_result = TTSResult(
             provider=tts_data.get("provider", tts_provider_name),
             fallback_used=tts_data.get("fallback_used", False),
@@ -408,10 +501,11 @@ async def _run_pipeline(
         ).model_dump())
     except Exception as exc:
         logger.warning("TTS failed — returning text-only answer: %s", exc)
-        errors.append(StageError(stage="tts", message=str(exc)))
+        detail = _safe_error_detail(exc)
+        errors.append(StageError(stage="tts", message="TTS_ERROR", detail=detail))
         await _emit(queue, "stage_error", StageErrorEvent(
             request_id=request_id, stage="tts",
-            message=str(exc), recoverable=True,
+            message="TTS_ERROR", detail=detail, recoverable=True,
         ).model_dump())
         tts_result = TTSResult(
             provider=tts_provider_override or settings.tts_provider,
@@ -419,6 +513,7 @@ async def _run_pipeline(
             audio_url="",
             latency_ms=0.0,
         )
+        await _emit_stage_complete_for_error(queue, request_id, "tts", "TTS_ERROR")
 
     # -----------------------------------------------------------------
     # Build complete response
@@ -481,14 +576,12 @@ async def audio_query_stream(
     request_id = generate_request_id()
     settings = get_settings()
 
-    audio_bytes = await audio.read()
+    normalizer_provider, tts_provider = _validate_provider_options(normalizer_provider, tts_provider)
+    max_bytes = settings.max_audio_upload_mb * 1024 * 1024
+    audio_bytes = await _read_limited_upload(audio, max_bytes)
 
     if not audio_bytes:
         raise HTTPException(status_code=400, detail="Empty audio upload")
-
-    max_bytes = settings.max_audio_upload_mb * 1024 * 1024
-    if len(audio_bytes) > max_bytes:
-        raise HTTPException(status_code=400, detail=f"Audio exceeds {settings.max_audio_upload_mb} MB limit")
 
     queue: asyncio.Queue[bytes] = asyncio.Queue()
 
@@ -514,7 +607,7 @@ async def audio_query_stream(
                 )
                 await _emit(queue, "pipeline_complete", PipelineCompleteEvent(
                     request_id=request_id, timestamp=time.time(),
-                    response=final_result,
+                    final_response=final_result,
                 ).model_dump())
             except Exception as exc:
                 logger.exception("Pipeline runner crashed unexpectedly")
@@ -522,26 +615,29 @@ async def audio_query_stream(
                     request_id=request_id,
                     answer=settings.fallback_answer,
                     spoken_answer=settings.fallback_answer,
-                    errors=[StageError(stage="pipeline", message="INTERNAL_ERROR", detail=str(exc))],
+                    errors=[StageError(stage="pipeline", message="INTERNAL_ERROR", detail=_safe_error_detail(exc))],
                 )
                 await _emit(queue, "pipeline_complete", PipelineCompleteEvent(
                     request_id=request_id, timestamp=time.time(),
-                    response=final_result,
+                    final_response=final_result,
                 ).model_dump())
             finally:
                 pipeline_done.set()
 
-        asyncio.create_task(runner())
-
-        # Consume from the queue until pipeline is done and queue is empty
-        while True:
-            if pipeline_done.is_set() and queue.empty():
-                break
-            try:
-                item = await asyncio.wait_for(queue.get(), timeout=0.05)
-                yield item
-            except asyncio.TimeoutError:
-                continue
+        runner_task = asyncio.create_task(runner())
+        try:
+            # Consume from the queue until pipeline is done and queue is empty
+            while True:
+                if pipeline_done.is_set() and queue.empty():
+                    break
+                try:
+                    item = await asyncio.wait_for(queue.get(), timeout=0.05)
+                    yield item
+                except asyncio.TimeoutError:
+                    continue
+        finally:
+            if not runner_task.done():
+                runner_task.cancel()
 
     return StreamingResponse(
         event_generator(),

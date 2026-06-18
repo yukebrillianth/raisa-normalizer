@@ -1,3 +1,5 @@
+"use client";
+
 export type StageStatus = "pending" | "active" | "complete" | "error";
 
 export type PipelineStageData = {
@@ -17,4 +19,16 @@ export type RetrievalCandidate = {
   similarity: number;
   keyword_score: number;
   rerank_score: number;
+};
+
+export type PipelineError = {
+  stage: string;
+  message: string;
+  detail?: string;
+  recoverable?: boolean;
+};
+
+export type LatencyItem = {
+  label: string;
+  ms: number;
 };

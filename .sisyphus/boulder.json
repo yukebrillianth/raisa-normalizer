@@ -15,7 +15,9 @@
     "ses_124cbecd5ffeWfdinN6Ah87DHE",
     "ses_124cba4f0ffeUbHmpgn3MM0Y56",
     "ses_124ba36dcffeyzKdgRDOqdvhag",
-    "ses_124b9f080ffemuzsS0ttkda0CD"
+    "ses_124b9f080ffemuzsS0ttkda0CD",
+    "ses_124a9389affegsRFocPKbM4Xyz",
+    "ses_124a8f5ddffeh3ccte0MXyJrPg"
   ],
   "session_origins": {
     "ses_1250915efffegXnlnoAb5cze6P": "direct",
@@ -31,7 +33,9 @@
     "ses_124cbecd5ffeWfdinN6Ah87DHE": "appended",
     "ses_124cba4f0ffeUbHmpgn3MM0Y56": "appended",
     "ses_124ba36dcffeyzKdgRDOqdvhag": "appended",
-    "ses_124b9f080ffemuzsS0ttkda0CD": "appended"
+    "ses_124b9f080ffemuzsS0ttkda0CD": "appended",
+    "ses_124a9389affegsRFocPKbM4Xyz": "appended",
+    "ses_124a8f5ddffeh3ccte0MXyJrPg": "appended"
   },
   "plan_name": "voice-assistant-thesis",
   "agent": "atlas",
@@ -71,6 +75,15 @@
       "agent": "Red Guard",
       "category": "visual-engineering",
       "updated_at": "2026-06-18T15:23:10.587Z"
+    },
+    "todo:14": {
+      "task_key": "todo:14",
+      "task_label": "14",
+      "task_title": "Frontend SSE pipeline visualization integration",
+      "session_id": "ses_124a8f5ddffeh3ccte0MXyJrPg",
+      "agent": "Red Guard",
+      "category": "unspecified-high",
+      "updated_at": "2026-06-18T15:39:24.404Z"
     }
   }
 }

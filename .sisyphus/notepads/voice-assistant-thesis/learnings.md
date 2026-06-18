@@ -146,6 +146,18 @@ T13 learnings - 2026-06-18
 - Graceful degradation behavior: STT/embed/retrieve fatal stop with fallback/error details; normalizer falls back to transcript; LLM selection failure falls back to baseline; TTS failure returns text-only with a recoverable stage error.
 - Verification used `python3 -m compileall app` plus source invariant checks for SSE format/events because local LSP still reports missing dependency imports (known project environment issue).
 
+T13 review fixes - 2026-06-18
+
+- T13 plan context expects `pipeline_start` to include the ordered stage list and `pipeline_complete` payload key to be `final_response`; schemas/router now match that SSE contract.
+- Threshold gate must check whether ANY top-3 candidate passes similarity threshold, not `retrieval_result.answered` (which only reflects reranked top-1).
+- LLM `selected_rank` output should be coerced from common JSON variants (`"1"`, `1.0`, `1`) into `int | None` before pipeline validation.
+- `LLMSelectionResult` now carries `spoken_answer` so the `select_and_verbalize` stage_complete payload contains the same spoken rephrase later used for TTS.
+- TTS degradation should try OpenAI fallback after Supertonic failure; text-only response is only after the selected provider and fallback path fail.
+- Pipeline upload reading should be chunk-limited instead of reading the complete upload before size validation.
+- Provider override form fields are security-sensitive; reject unknown normalizer/TTS providers with 422 instead of silently falling back.
+- TTS should not speak unvalidated LLM text: use a lightweight divergence/instruction-marker check and fall back to selected candidate answer when suspicious.
+- `psycopg2-binary` must be declared in both `backend/requirements.txt` and `backend/pyproject.toml` because db/admin modules import psycopg2.
+
 T15 learnings - 2026-06-18
 
 - Created 4 files: `AdminPanel.tsx`, `AdminQAForm.tsx`, `AdminCSVImport.tsx`, `app/admin/page.tsx`.
@@ -158,3 +170,28 @@ T15 learnings - 2026-06-18
 - CSV import uses `FormData` with file input; response renders per-row errors with row numbers from backend.
 - Design patterns reused: `SectionCard`, `paper-panel`, `rounded-[var(--radius-card)]`, `border-line`, `bg-background`, `font-mono` labels, `uppercase tracking-[0.18em]`, semantic color tokens (`success-soft`, `error-soft`, `warning-soft`).
 - Build verification: `rm -rf .next && npx next build` passes with BUILD_ID generated.
+
+T16 learnings - 2026-06-18
+
+- Created `backend/app/routers/health.py` with aggregate `GET /api/health` endpoint using `APIRouter(prefix="/api/health")`.
+- Each provider subsection wrapped in async helper with try/except — a single provider failure never blocks the full health check.
+- DB health reports: connected, table_exists, row_count, pgvector_available from the cached singleton.
+- Embedding health: delegates to `BGEEmbeddingProvider().health()` — returns provider/model_name/device/loaded.
+- STT health: delegates to `OpenAIWhisperSTTProvider().health()` + re-enforces `api_key_configured` as bool-only.
+- Normalizer health: aggregates Alpaca (required, via `get_instance()`) and vLLM (optional, returns `unavailable` if unreachable).
+- TTS health: aggregates Supertonic (optional, returns `unavailable` on failure) and OpenAI (reports `api_key_configured` as bool).
+- Admin health: reports `token_configured: bool` from `settings.admin_token`, never exposes token value.
+- Version reported as `"1.0.0"` in aggregate response via module-level `__version__`.
+- Removed old inline `health()` and `db_health()` endpoints from main.py (collision with `from app.routers import health` import).
+- Also removed unused `get_db` import from main.py (only used by old db_health endpoint).
+- Verdict: All LSP errors are pre-existing `fastapi` import resolution issues (venv not in LSP path).
+
+T14 learnings - 2026-06-18
+
+- Frontend SSE integration uses `fetch()` + `ReadableStream` instead of `EventSource` because backend stream requires `POST multipart/form-data`; upload sends `audio` blob and `mime_type` field to `/api/pipeline/audio-query/stream`.
+- Backend URL resolution follows spec: `NEXT_PUBLIC_BACKEND_URL` with fallback `http://localhost:8000`, trimming trailing slash before composing API/audio URLs.
+- Pipeline stages are rendered progressively from SSE events: `pipeline_start`, `stage_start`, `stage_complete`, `stage_error`, and `pipeline_complete`; stage ids match backend (`stt`, `normalize`, `embed`, `retrieve`, `baseline_rerank`, `select_and_verbalize`, `tts`).
+- `pipeline_complete` client parser accepts both `data.response` and `data.final_response` because backend router currently emits `response=` while schema field is `final_response`.
+- Existing visual system uses warm paper CSS variables/Tailwind v4 tokens; updated recorder styles away from default zinc/blue/red utility palette into semantic tokens (`accent`, `error`, `info`, `surface`, `line`).
+- LSP diagnostics are clean for changed frontend files; full frontend directory still has pre-existing admin client-prop serialization warnings from T15.
+- `npx next build` passes from `frontend/`.

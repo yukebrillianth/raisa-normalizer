@@ -10,8 +10,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.config import get_settings
-from app.db import get_db
 from app.routers import admin
+from app.routers import health
 from app.routers import pipeline
 
 logger = logging.getLogger(__name__)
@@ -59,23 +59,5 @@ async def _on_startup() -> None:
 
 
 app.include_router(admin.router)
+app.include_router(health.router)
 app.include_router(pipeline.router)
-
-
-@app.get("/")
-def health() -> dict[str, str]:
-    return {"status": "ok"}
-
-
-@app.get("/api/health/db")
-def db_health() -> dict:
-    db = get_db()
-    schema = db.schema
-    return {
-        "connected": db.connected,
-        "table_exists": schema.table_exists,
-        "row_count": schema.row_count,
-        "vector_dimension": schema.vector_dimension,
-        "id_strategy": schema.id_strategy,
-        "pgvector_available": schema.pgvector_available,
-    }

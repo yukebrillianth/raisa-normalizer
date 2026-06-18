@@ -149,8 +149,9 @@ class AlpacaSelectionVerbalizerProvider(SelectionVerbalizerProvider):
 
         try:
             data = json.loads(cleaned)
+            selected_rank = self._coerce_selected_rank(data.get("selected_rank"))
             return {
-                "selected_rank": data.get("selected_rank"),
+                "selected_rank": selected_rank,
                 "selected_answer": str(data.get("selected_answer", "")).strip(),
                 "spoken_answer": str(data.get("spoken_answer", "")).strip(),
                 "reason": str(data.get("reason", "")).strip(),
@@ -167,6 +168,17 @@ class AlpacaSelectionVerbalizerProvider(SelectionVerbalizerProvider):
                 "refused": True,
                 "refusal_reason": "Output format error",
             }
+
+    @staticmethod
+    def _coerce_selected_rank(value: Any) -> int | None:
+        """Coerce common LLM JSON variants into a valid 1-3 rank or None."""
+        if value is None:
+            return None
+        try:
+            rank = int(value)
+        except (TypeError, ValueError):
+            return None
+        return rank if 1 <= rank <= 3 else None
 
     @staticmethod
     def _build_disabled_response(candidates: list[dict[str, Any]]) -> dict[str, Any]:

@@ -1,14 +1,11 @@
-type LatencyItem = {
-  label: string;
-  ms: number;
-};
+import type { LatencyItem } from "@/components/types";
 
 type LatencyTimelineProps = {
   items: LatencyItem[];
 };
 
 export function LatencyTimeline({ items }: LatencyTimelineProps) {
-  const max = Math.max(...items.map((item) => item.ms));
+  const max = Math.max(1, ...items.map((item) => item.ms));
 
   return (
     <aside

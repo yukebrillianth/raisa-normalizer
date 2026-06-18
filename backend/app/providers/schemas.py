@@ -56,6 +56,7 @@ class LLMSelectionResult(BaseModel):
     selected_rank: int | None = Field(default=None, examples=[1])
     selected_question: str = ""
     selected_answer: str = ""
+    spoken_answer: str = ""
     reason: str = ""
     latency_ms: float = Field(default=0.0)
     fallback_used: bool = Field(default=False)
@@ -121,6 +122,17 @@ class PipelineStartEvent(BaseModel):
     event: str = Field(default="pipeline_start", frozen=True)
     request_id: str
     timestamp: float = Field(default_factory=lambda: __import__("time").time())
+    stages: list[str] = Field(
+        default_factory=lambda: [
+            "stt",
+            "normalize",
+            "embed",
+            "retrieve",
+            "baseline_rerank",
+            "select_and_verbalize",
+            "tts",
+        ],
+    )
 
 
 class StageStartEvent(BaseModel):
@@ -154,7 +166,7 @@ class PipelineCompleteEvent(BaseModel):
     event: str = Field(default="pipeline_complete", frozen=True)
     request_id: str
     timestamp: float = Field(default_factory=lambda: __import__("time").time())
-    response: PipelineResponse
+    final_response: PipelineResponse
 
 
 class StageErrorEvent(BaseModel):

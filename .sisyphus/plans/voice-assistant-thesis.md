@@ -1073,7 +1073,7 @@ Wave FINAL:
   **Commit**: YES
   - Message: `feat(api): orchestrate end to end voice pipeline`
 
-- [ ] 14. Frontend SSE pipeline visualization integration
+- [x] 14. Frontend SSE pipeline visualization integration
 
   **What to do**:
   - Wire recording/upload UI to the SSE pipeline endpoint using EventSource or fetch + ReadableStream.
@@ -1193,7 +1193,7 @@ Wave FINAL:
   **Commit**: YES
   - Message: `feat(ui): add qa admin panel`
 
-- [ ] 16. Health checks + graceful degradation
+- [x] 16. Health checks + graceful degradation
 
   **What to do**:
   - Implement `/api/health` aggregate endpoint.

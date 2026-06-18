@@ -41,6 +41,12 @@ export function PipelineStage({ stage }: PipelineStageProps) {
           <p className="mt-4 break-words rounded-2xl border border-line bg-background/70 p-4 font-mono text-xs leading-6 text-ink">
             {stage.detail}
           </p>
+          {stage.status === "active" ? (
+            <div className="mt-4 flex items-center gap-2 font-mono text-xs uppercase tracking-[0.18em] text-info">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-info" />
+              thinking...
+            </div>
+          ) : null}
         </div>
         {typeof stage.latencyMs === "number" ? (
           <span className="shrink-0 rounded-full border border-line-strong bg-surface-strong px-3 py-1 font-mono text-xs font-semibold text-ink">
