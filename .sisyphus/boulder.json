@@ -25,7 +25,8 @@
     "ses_1248c62f4ffe35tNCMvtQo2fi5",
     "ses_1248c2255ffeCjJCIpTd07lHDl",
     "ses_1248be453ffeC6YUEAKM765yb6",
-    "ses_1248ba930ffeSEWU2bXRbalCH3"
+    "ses_1248ba930ffeSEWU2bXRbalCH3",
+    "ses_1247568e1ffegPuu8f2atdHkjk"
   ],
   "session_origins": {
     "ses_1250915efffegXnlnoAb5cze6P": "direct",
@@ -51,7 +52,8 @@
     "ses_1248c62f4ffe35tNCMvtQo2fi5": "appended",
     "ses_1248c2255ffeCjJCIpTd07lHDl": "appended",
     "ses_1248be453ffeC6YUEAKM765yb6": "appended",
-    "ses_1248ba930ffeSEWU2bXRbalCH3": "appended"
+    "ses_1248ba930ffeSEWU2bXRbalCH3": "appended",
+    "ses_1247568e1ffegPuu8f2atdHkjk": "appended"
   },
   "plan_name": "voice-assistant-thesis",
   "agent": "atlas",

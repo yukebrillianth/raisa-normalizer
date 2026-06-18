@@ -1,8 +1,8 @@
 """Alpaca-format normalizer provider for informal-to-formal Indonesian query rewriting.
 
-Uses a fine-tuned base + LoRA model loaded via transformers + peft to rewrite
-informal Indonesian queries into formal (baku) Indonesian following the exact
-Alpaca prompt format from the training notebook.
+Uses unsloth.FastLanguageModel (matching the training notebook exactly) with optional
+LoRA adapter via peft to rewrite informal Indonesian queries into formal (baku)
+Indonesian following the exact Alpaca prompt format from the training notebook.
 """
 
 from __future__ import annotations
@@ -15,7 +15,8 @@ from pathlib import Path
 from typing import Any
 
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from unsloth import FastLanguageModel
+from transformers import AutoTokenizer, BitsAndBytesConfig
 
 from app.config import get_settings
 from app.providers.base import NormalizerProvider
@@ -83,7 +84,7 @@ class AlpacaNormalizerProvider(NormalizerProvider):
         self._model_loaded = False
         self._adapter_loaded = False
         self._device: str = "cpu"
-        self._model: AutoModelForCausalLM | None = None  # type: ignore[assignment]
+        self._model: Any = None
         self._tokenizer: AutoTokenizer | None = None
 
         settings = get_settings()
@@ -118,15 +119,20 @@ class AlpacaNormalizerProvider(NormalizerProvider):
             self._tokenizer = AutoTokenizer.from_pretrained(
                 self._base_model_path,
                 trust_remote_code=True,
+                fix_mistral_regex=True,
             )
             if self._tokenizer.pad_token is None:
                 self._tokenizer.pad_token = self._tokenizer.eos_token
 
             logger.info("Loading base model from %s (device: %s)", self._base_model_path, self._device)
-            self._model = AutoModelForCausalLM.from_pretrained(
+            quantization_config = BitsAndBytesConfig(load_in_8bit=True, llm_int8_threshold=6.0)
+            self._model, _ = FastLanguageModel.from_pretrained(
                 self._base_model_path,
-                torch_dtype=torch.float16 if self._device == "cuda" else torch.float32,
-                device_map="auto" if self._device == "cuda" else None,
+                max_seq_length=128,
+                dtype=None,
+                load_in_4bit=False,
+                load_in_8bit=True,
+                quantization_config=quantization_config,
                 trust_remote_code=True,
                 low_cpu_mem_usage=True,
             )
