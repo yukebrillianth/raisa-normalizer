@@ -651,7 +651,7 @@ Wave FINAL:
   **Commit**: YES
   - Message: `docs: add gpu lab setup skeleton`
 
-- [ ] 7. OpenAI Whisper STT provider
+- [x] 7. OpenAI Whisper STT provider
 
   **What to do**:
   - Implement STT provider using OpenAI Whisper API.
@@ -705,7 +705,7 @@ Wave FINAL:
   **Commit**: YES
   - Message: `feat(stt): add openai whisper transcription provider`
 
-- [ ] 8. Alpaca normalizer provider
+- [x] 8. Alpaca normalizer provider
 
   **What to do**:
   - Implement default normalizer provider for Alpaca-format model from local base model and LoRA paths.
@@ -766,7 +766,7 @@ Wave FINAL:
   **Commit**: YES
   - Message: `feat(normalizer): serve alpaca lora provider`
 
-- [ ] 9. vLLM chat-template normalizer provider
+- [x] 9. vLLM chat-template normalizer provider
 
   **What to do**:
   - Implement optional provider that calls a vLLM OpenAI-compatible chat/completions endpoint.
@@ -821,7 +821,7 @@ Wave FINAL:
   **Commit**: YES
   - Message: `feat(normalizer): add optional vllm provider`
 
-- [ ] 10. Embedding + retrieval + baseline reranking service
+- [x] 10. Embedding + retrieval + baseline reranking service
 
   **What to do**:
   - Load `BAAI/bge-m3` SentenceTransformer according to env.
@@ -884,7 +884,7 @@ Wave FINAL:
   **Commit**: YES
   - Message: `feat(retrieval): implement pgvector hybrid reranking`
 
-- [ ] 11. TTS providers: Supertonic-3 + OpenAI fallback
+- [x] 11. TTS providers: Supertonic-3 + OpenAI fallback
 
   **What to do**:
   - Implement Supertonic-3 TTS provider with `total_steps=5` default.
@@ -942,7 +942,7 @@ Wave FINAL:
   **Commit**: YES
   - Message: `feat(tts): add supertonic with openai fallback`
 
-- [ ] 12. Admin API for QA CRUD/import/embedding regeneration
+- [x] 12. Admin API for QA CRUD/import/embedding regeneration
 
   **What to do**:
   - Implement admin endpoints guarded by `ADMIN_TOKEN`.

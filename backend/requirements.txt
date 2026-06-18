@@ -3,3 +3,12 @@ uvicorn[standard]
 pydantic-settings
 python-multipart
 python-dotenv
+sentence-transformers
+httpx
+openai
+supertonic
+soundfile
+numpy
+torch
+transformers
+peft

@@ -26,7 +26,7 @@ class RetrievalCandidate(BaseModel):
     answer: str
     similarity: float = Field(..., ge=0.0, le=1.0, examples=[0.91])
     keyword_score: float = Field(default=0.0, ge=0.0, le=1.0)
-    rerank_score: float = Field(default=0.0, ge=0.0, le=1.0, examples=[0.99])
+    rerank_score: float = Field(default=0.0, ge=0.0, examples=[0.99])
 
 
 class BaselineRerankSelected(BaseModel):
@@ -35,7 +35,7 @@ class BaselineRerankSelected(BaseModel):
     question: str
     answer: str
     similarity: float = Field(..., ge=0.0, le=1.0)
-    rerank_score: float = Field(..., ge=0.0, le=1.0)
+    rerank_score: float = Field(..., ge=0.0)
 
 
 class RetrievalResult(BaseModel):

@@ -15,7 +15,7 @@ class STTProvider(abc.ABC):
     """Speech-to-text — audio bytes → transcript string."""
 
     @abc.abstractmethod
-    async def process(self, audio: bytes) -> str:  # noqa: D102
+    async def process(self, audio: bytes) -> dict[str, Any]:  # noqa: D102
         ...
 
     @abc.abstractmethod

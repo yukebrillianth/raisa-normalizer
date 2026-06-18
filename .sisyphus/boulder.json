@@ -7,7 +7,13 @@
     "ses_124db7ac7ffevrOYnpAO02MfGi",
     "ses_124db3147ffefHmwujlHHa3UnX",
     "ses_124dad019ffeMAiIOIgQ998Cld",
-    "ses_124da9148ffeH3OLPOiL5tpcjX"
+    "ses_124da9148ffeH3OLPOiL5tpcjX",
+    "ses_124cdee55ffeBqJKB6p4mBrFIu",
+    "ses_124cd8919ffeH3efSX8BINC1ta",
+    "ses_124cc966affexjbQf6p8cjlclD",
+    "ses_124cc3703ffeenJmhSoVTRrnTQ",
+    "ses_124cbecd5ffeWfdinN6Ah87DHE",
+    "ses_124cba4f0ffeUbHmpgn3MM0Y56"
   ],
   "session_origins": {
     "ses_1250915efffegXnlnoAb5cze6P": "direct",
@@ -15,7 +21,13 @@
     "ses_124db7ac7ffevrOYnpAO02MfGi": "appended",
     "ses_124db3147ffefHmwujlHHa3UnX": "appended",
     "ses_124dad019ffeMAiIOIgQ998Cld": "appended",
-    "ses_124da9148ffeH3OLPOiL5tpcjX": "appended"
+    "ses_124da9148ffeH3OLPOiL5tpcjX": "appended",
+    "ses_124cdee55ffeBqJKB6p4mBrFIu": "appended",
+    "ses_124cd8919ffeH3efSX8BINC1ta": "appended",
+    "ses_124cc966affexjbQf6p8cjlclD": "appended",
+    "ses_124cc3703ffeenJmhSoVTRrnTQ": "appended",
+    "ses_124cbecd5ffeWfdinN6Ah87DHE": "appended",
+    "ses_124cba4f0ffeUbHmpgn3MM0Y56": "appended"
   },
   "plan_name": "voice-assistant-thesis",
   "agent": "atlas",
@@ -37,6 +49,15 @@
       "agent": "Red Guard",
       "category": "writing",
       "updated_at": "2026-06-18T14:41:51.087Z"
+    },
+    "todo:7": {
+      "task_key": "todo:7",
+      "task_label": "7",
+      "task_title": "OpenAI Whisper STT provider",
+      "session_id": "ses_124cba4f0ffeUbHmpgn3MM0Y56",
+      "agent": "Red Guard",
+      "category": "unspecified-high",
+      "updated_at": "2026-06-18T15:06:22.160Z"
     }
   }
 }

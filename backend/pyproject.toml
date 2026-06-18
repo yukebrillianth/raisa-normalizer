@@ -9,6 +9,7 @@ dependencies = [
     "pydantic-settings",
     "python-multipart",
     "python-dotenv",
+    "httpx",
 ]
 
 [tool.uvicorn]
