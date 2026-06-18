@@ -1,45 +1,94 @@
 @import "tailwindcss";
 
-:root {
-  --background: #f5f1e8;
-  --foreground: #17130c;
-  --surface: #fffaf0;
-  --surface-strong: #f1e5ce;
-  --surface-muted: #e6dcc9;
-  --ink: #17130c;
-  --ink-muted: #695f4d;
-  --line: #d7c5a7;
-  --line-strong: #a98b5d;
-  --accent: #d94f2b;
-  --accent-strong: #9f2e17;
-  --accent-soft: #f2c2a7;
-  --success: #28704f;
-  --success-soft: #cfe8d9;
-  --warning: #a96b00;
-  --warning-soft: #f6dfa8;
-  --error: #a72f27;
-  --error-soft: #f3c8c3;
-  --info: #245a7e;
-  --info-soft: #c8ddeb;
-  --shadow-soft: 0 18px 50px rgb(55 38 18 / 0.14);
-  --shadow-card: 0 10px 30px rgb(55 38 18 / 0.1);
-  --radius-card: 1.25rem;
-  --radius-panel: 1.75rem;
-  --spacing-panel: 1.5rem;
+/* ─────────────────────────────────────────────────────────
+   RAISA Design System — ITS Branding, Horizontal Layout
+   Colors: Biru #007BC0, Cover #243E80, Hitam #2D2C2F
+   Fonts: Friz Quadrata Std (display), Work Sans (body)
+   ───────────────────────────────────────────────────────── */
+
+@font-face {
+  font-family: 'Friz Quadrata Std';
+  src: url('/fonts/friz.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
+:root {
+  /* ── ITS Brand Colors ──────────────────────────── */
+  --its-blue: #007BC0;
+  --its-blue-dark: #005a8c;
+  --its-blue-light: #4da3d9;
+  --its-cover: #243E80;
+  --its-cover-dark: #1a2d5e;
+  --its-black: #2D2C2F;
+
+  /* ── Surfaces — clean, not warm ────────────────── */
+  --surface-0: #FFFFFF;
+  --surface-1: #F8F9FB;
+  --surface-2: #F0F2F5;
+  --surface-3: #E4E7EB;
+
+  /* ── Text ──────────────────────────────────────── */
+  --text-primary: #2D2C2F;
+  --text-secondary: #555553;
+  --text-muted: #8B8B89;
+  --text-inverse: #FFFFFF;
+
+  /* ── Accent ────────────────────────────────────── */
+  --accent: #007BC0;
+  --accent-dark: #005a8c;
+  --accent-soft: #e8f4fb;
+  --accent-hover: #0069a3;
+
+  /* ── Status ────────────────────────────────────── */
+  --success: #16a34a;
+  --success-soft: #dcfce7;
+  --warning: #d97706;
+  --warning-soft: #fef3c7;
+  --error: #dc2626;
+  --error-soft: #fee2e2;
+  --info: #0284c7;
+  --info-soft: #e0f2fe;
+
+  /* ── Typography ────────────────────────────────── */
+  --font-display: 'Friz Quadrata Std', Georgia, 'Times New Roman', serif;
+  --font-body: 'Work Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+
+  /* ── Spacing ───────────────────────────────────── */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  /* ── Shadows — minimal, no heavy drop-shadows ─── */
+  --shadow-xs: 0 1px 2px rgba(45, 44, 47, 0.04);
+  --shadow-sm: 0 1px 3px rgba(45, 44, 47, 0.06);
+  --shadow-md: 0 2px 8px rgba(45, 44, 47, 0.08);
+
+  /* ── Transitions ───────────────────────────────── */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+}
+
+/* ── Tailwind theme mapping ─────────────────────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-surface: var(--surface);
-  --color-surface-strong: var(--surface-strong);
-  --color-surface-muted: var(--surface-muted);
-  --color-ink: var(--ink);
-  --color-ink-muted: var(--ink-muted);
-  --color-line: var(--line);
-  --color-line-strong: var(--line-strong);
+  --color-its-blue: var(--its-blue);
+  --color-its-cover: var(--its-cover);
+  --color-its-black: var(--its-black);
+  --color-surface-0: var(--surface-0);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
   --color-accent: var(--accent);
-  --color-accent-strong: var(--accent-strong);
   --color-accent-soft: var(--accent-soft);
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
@@ -47,47 +96,89 @@
   --color-warning-soft: var(--warning-soft);
   --color-error: var(--error);
   --color-error-soft: var(--error-soft);
-  --color-info: var(--info);
-  --color-info-soft: var(--info-soft);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+}
+
+/* ── Base ────────────────────────────────────────── */
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), ui-sans-serif, sans-serif;
+  background-color: var(--surface-1);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  line-height: 1.6;
 }
 
 ::selection {
   background: var(--accent-soft);
-  color: var(--ink);
+  color: var(--its-cover);
 }
 
-.debug-grid {
-  background-image:
-    linear-gradient(rgb(169 139 93 / 0.13) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(169 139 93 / 0.13) 1px, transparent 1px),
-    radial-gradient(circle at top left, rgb(217 79 43 / 0.17), transparent 34rem),
-    radial-gradient(circle at bottom right, rgb(36 90 126 / 0.13), transparent 32rem);
-  background-size: 2rem 2rem, 2rem 2rem, 100% 100%, 100% 100%;
+/* ── Utility classes ─────────────────────────────── */
+
+.font-display {
+  font-family: var(--font-display);
 }
 
-.paper-panel {
-  border: 1px solid var(--line);
-  background: color-mix(in srgb, var(--surface) 88%, transparent);
-  box-shadow: var(--shadow-card);
-  backdrop-filter: blur(18px);
+.font-body {
+  font-family: var(--font-body);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
 }
 
 .text-balance {
   text-wrap: balance;
 }
 
-@keyframes stage-fade-in {
+/* ── Card styles — clean borders, minimal shadow ── */
+
+.raisa-card {
+  background: var(--surface-0);
+  border: 1px solid var(--surface-3);
+  border-radius: var(--radius-lg);
+}
+
+.raisa-card-flush {
+  background: var(--surface-0);
+  border: 1px solid var(--surface-3);
+}
+
+/* ── Scrollbar ───────────────────────────────────── */
+
+.scrollable {
+  scrollbar-color: var(--surface-3) transparent;
+  scrollbar-width: thin;
+}
+
+.scrollable::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+  background: var(--surface-3);
+  border-radius: 9999px;
+}
+
+.scrollable::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ── Animations ──────────────────────────────────── */
+
+@keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -95,21 +186,138 @@ body {
   }
 }
 
-.stage-fade-in {
-  animation: stage-fade-in 280ms ease-out both;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-.scrollable-panel {
-  scrollbar-color: var(--line-strong) transparent;
-  scrollbar-width: thin;
+@keyframes pulseRing {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--its-blue) 45%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 20px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
 }
 
-.scrollable-panel::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+@keyframes pulseRingLarge {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--its-blue) 35%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 32px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
 }
 
-.scrollable-panel::-webkit-scrollbar-thumb {
-  background: var(--line-strong);
-  border-radius: 9999px;
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes stagePop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 300ms var(--ease-out) both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 250ms ease both;
+}
+
+.animate-pulse-ring {
+  animation: pulseRing 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-pulse-ring-large {
+  animation: pulseRingLarge 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-stage-pop {
+  animation: stagePop 280ms var(--ease-out) both;
+}
+
+.animate-spin-slow {
+  animation: spin 1.2s linear infinite;
+}
+
+/* ── Timeline connector ──────────────────────────── */
+
+.timeline-line {
+  position: absolute;
+  left: 11px;
+  top: 28px;
+  bottom: -8px;
+  width: 2px;
+  background: var(--surface-3);
+}
+
+.timeline-line-active {
+  background: var(--its-blue);
+}
+
+.timeline-line-complete {
+  background: var(--success);
+}
+
+/* ── Mic button states ───────────────────────────── */
+
+.mic-btn {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--duration-normal) var(--ease-out);
+  position: relative;
+}
+
+.mic-btn-idle {
+  background: var(--its-blue);
+  color: white;
+}
+
+.mic-btn-idle:hover {
+  background: var(--accent-hover);
+  transform: scale(1.05);
+}
+
+.mic-btn-recording {
+  background: var(--error);
+  color: white;
+  animation: pulseRingLarge 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.mic-btn-processing {
+  background: var(--surface-3);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+/* ── Audio player ────────────────────────────────── */
+
+.audio-player audio {
+  width: 100%;
+  height: 36px;
+  border-radius: var(--radius-md);
+}
+
+.audio-player audio::-webkit-media-controls-panel {
+  background: var(--surface-1);
 }

@@ -82,7 +82,7 @@ const LATENCY_LABELS: Record<string, string> = {
   tts: "TTS",
 };
 
-type SseEventData = Record<string, any>;
+type SseEventData = Record<string, unknown>;
 
 type SseEvent = {
   event: string;
@@ -313,7 +313,7 @@ function applyStageStart(state: PipelineState, data: SseEventData): PipelineStat
 function applyStageComplete(state: PipelineState, data: SseEventData): PipelineState {
   const stageId = typeof data.stage === "string" ? data.stage : "";
   if (!stageId) return state;
-  const payload = (data.data ?? {}) as Record<string, any>;
+  const payload = (data.data ?? {}) as Record<string, unknown>;
   const stageLatencyMs = typeof payload.latency_ms === "number" ? payload.latency_ms : undefined;
   let nextState = state;
 

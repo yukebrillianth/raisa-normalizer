@@ -8,6 +8,7 @@ Indonesian following the exact Alpaca prompt format from the training notebook.
 from __future__ import annotations
 
 import logging
+import os
 import re
 import threading
 import time
@@ -17,8 +18,7 @@ from typing import Any
 import torch
 from app.config import get_settings
 from app.providers.base import NormalizerProvider
-from transformers import (AutoTokenizer, BitsAndBytesConfig,
-                          PreTrainedTokenizerFast)
+from transformers import AutoTokenizer, BitsAndBytesConfig
 from unsloth import FastLanguageModel
 
 logger = logging.getLogger(__name__)
@@ -116,17 +116,16 @@ class AlpacaNormalizerProvider(NormalizerProvider):
             self._device = "cuda" if torch.cuda.is_available() else "cpu"
             logger.info("Loading tokenizer from %s", self._base_model_path)
 
-            # self._tokenizer = AutoTokenizer.from_pretrained(
-            #     self._base_model_path,
-            #     trust_remote_code=True,
-            #     fix_mistral_regex=True,
-            # )
-            self._tokenizer = PreTrainedTokenizerFast.from_pretrained(
+            # Match notebook exactly: no fix_mistral_regex (the warning is non-fatal)
+            self._tokenizer = AutoTokenizer.from_pretrained(
                 self._base_model_path,
                 trust_remote_code=True,
             )
             if self._tokenizer.pad_token is None:
                 self._tokenizer.pad_token = self._tokenizer.eos_token
+
+            # Required by unsloth to avoid static generation issues
+            os.environ["UNSLOTH_DISABLE_STATIC_GENERATION"] = "1"
 
             logger.info("Loading base model from %s (device: %s)", self._base_model_path, self._device)
             quantization_config = BitsAndBytesConfig(load_in_8bit=True, llm_int8_threshold=6.0)
@@ -139,6 +138,7 @@ class AlpacaNormalizerProvider(NormalizerProvider):
                 quantization_config=quantization_config,
                 trust_remote_code=True,
                 low_cpu_mem_usage=True,
+                attn_implementation="sdpa",
             )
             self._model_loaded = True
 
