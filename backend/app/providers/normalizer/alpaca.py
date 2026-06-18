@@ -7,8 +7,6 @@ Indonesian following the exact Alpaca prompt format from the training notebook.
 
 from __future__ import annotations
 
-from unsloth import FastLanguageModel
-
 import logging
 import re
 import threading
@@ -17,10 +15,11 @@ from pathlib import Path
 from typing import Any
 
 import torch
-from transformers import AutoTokenizer, BitsAndBytesConfig
-
 from app.config import get_settings
 from app.providers.base import NormalizerProvider
+from transformers import (AutoTokenizer, BitsAndBytesConfig,
+                          PreTrainedTokenizerFast)
+from unsloth import FastLanguageModel
 
 logger = logging.getLogger(__name__)
 
@@ -117,10 +116,14 @@ class AlpacaNormalizerProvider(NormalizerProvider):
             self._device = "cuda" if torch.cuda.is_available() else "cpu"
             logger.info("Loading tokenizer from %s", self._base_model_path)
 
-            self._tokenizer = AutoTokenizer.from_pretrained(
+            # self._tokenizer = AutoTokenizer.from_pretrained(
+            #     self._base_model_path,
+            #     trust_remote_code=True,
+            #     fix_mistral_regex=True,
+            # )
+            self._tokenizer = PreTrainedTokenizerFast.from_pretrained(
                 self._base_model_path,
                 trust_remote_code=True,
-                fix_mistral_regex=True,
             )
             if self._tokenizer.pad_token is None:
                 self._tokenizer.pad_token = self._tokenizer.eos_token

@@ -14,7 +14,6 @@ import time
 from typing import Any
 
 import torch
-
 from app.config import get_settings
 from app.providers.base import SelectionVerbalizerProvider
 from app.providers.normalizer.alpaca import AlpacaNormalizerProvider

@@ -205,3 +205,8 @@ T14 learnings - 2026-06-18
 ## T19 QA smoke scenarios
 - Created `.sisyphus/qa-scenarios.md` with 15 executable smoke scenarios covering API, frontend, admin, provider fallbacks, and failure paths.
 - Confirmed actual endpoints used by implementation: `POST /api/pipeline/audio-query/stream`, `GET/POST/PUT/DELETE /api/admin/qa`, `POST /api/admin/qa/import`, `POST /api/admin/qa/{identifier}/regenerate-embedding`, `GET /api/health`, and `GET /api/audio/{filename}`.
+
+## 2026-06-19 — OpenAI selection verbalizer
+- Replaced pipeline selection+verbalization provider export/import with `OpenAISelectionVerbalizerProvider`; Alpaca selection file remains in place for reference and normalizer stays Alpaca/VLLM-controlled.
+- New provider uses `AsyncOpenAI` chat completions with model `gpt-4.1-mini`, temperature 0.3, JSON-object response format, ITS system prompt, raw transcript, normalized query, and top-3 candidate question/answer/similarity/rerank scores.
+- Provider always copies selected question/answer from retrieved candidates after parsing so only `spoken_answer` comes from GPT rephrasing; API/key/JSON failures fall back to top-1 candidate without breaking the pipeline.

@@ -1,5 +1,5 @@
 """LLM selection and verbalization provider implementations."""
 
-from app.providers.selection_verbalizer.alpaca import AlpacaSelectionVerbalizerProvider
+from app.providers.selection_verbalizer.openai import OpenAISelectionVerbalizerProvider
 
-__all__ = ["AlpacaSelectionVerbalizerProvider"]
+__all__ = ["OpenAISelectionVerbalizerProvider"]

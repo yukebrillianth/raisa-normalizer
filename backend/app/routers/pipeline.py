@@ -25,7 +25,7 @@ from fastapi.responses import StreamingResponse
 from app.config import get_settings
 from app.providers.normalizer import AlpacaNormalizerProvider, VLLMNormalizerProvider
 from app.providers.retrieval import BGEEmbeddingProvider, PgvectorRetrievalProvider
-from app.providers.selection_verbalizer import AlpacaSelectionVerbalizerProvider
+from app.providers.selection_verbalizer import OpenAISelectionVerbalizerProvider
 from app.providers.stt.openai import OpenAIWhisperSTTProvider, STTProviderError
 from app.providers.tts import OpenAITTSProvider, SupertonicTTSProvider
 from app.providers.schemas import (
@@ -128,17 +128,9 @@ def _tts_provider_for_name(provider_name: str) -> Any:
 
 
 def _validated_spoken_answer(spoken_answer: str, selected_answer: str) -> str:
-    """Prevent TTS from speaking unrelated or instruction-like LLM text."""
+    """Use plain-text verbalizer output if it is non-empty."""
     candidate = spoken_answer.strip()
     if not candidate:
-        return selected_answer
-    lowered = candidate.lower()
-    suspicious_markers = ("###", "```", "<script", "http://", "https://", "abaikan", "ignore previous")
-    if any(marker in lowered for marker in suspicious_markers):
-        return selected_answer
-    answer_terms = {word.strip(".,;:!?()[]{}\"'").lower() for word in selected_answer.split() if len(word) >= 4}
-    spoken_terms = {word.strip(".,;:!?()[]{}\"'").lower() for word in candidate.split() if len(word) >= 4}
-    if answer_terms and len(answer_terms & spoken_terms) / max(len(answer_terms), 1) < 0.25:
         return selected_answer
     return candidate
 
@@ -427,7 +419,7 @@ async def _run_pipeline(
             request_id=request_id, stage="select_and_verbalize",
         ).model_dump())
 
-        selection_provider = AlpacaSelectionVerbalizerProvider()
+        selection_provider = OpenAISelectionVerbalizerProvider()
         try:
             with timing.stage("llm_selection"):
                 selection_data = await selection_provider.process(
@@ -450,7 +442,7 @@ async def _run_pipeline(
                 selected_question = candidates_list[selected_rank - 1].question
 
             llm_selection = LLMSelectionResult(
-                provider=selection_data.get("provider", "alpaca"),
+                provider=selection_data.get("provider", "openai"),
                 selected_rank=selected_rank if isinstance(selected_rank, int) else None,
                 selected_question=selected_question,
                 selected_answer=selection_data.get("selected_answer", ""),
@@ -497,7 +489,7 @@ async def _run_pipeline(
             # else stays with fallback_answer
 
             llm_selection = LLMSelectionResult(
-                provider="alpaca",
+                provider="openai",
                 selected_rank=None,
                 fallback_used=True,
                 refused=False,
