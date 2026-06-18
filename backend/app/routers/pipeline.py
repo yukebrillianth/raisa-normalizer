@@ -13,6 +13,9 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import os
+import subprocess
+import tempfile
 import time
 from typing import Any
 
@@ -164,6 +167,44 @@ async def _read_limited_upload(upload: UploadFile, max_bytes: int) -> bytes:
             raise HTTPException(status_code=400, detail="Audio exceeds configured upload limit")
         chunks.append(chunk)
     return b"".join(chunks)
+
+
+def _check_audio_duration(audio_bytes: bytes, max_seconds: int) -> None:
+    """Validate audio duration using ffprobe, raising 400 if exceeded."""
+    tmp_path: str | None = None
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".webm", delete=False) as tmp:
+            tmp.write(audio_bytes)
+            tmp_path = tmp.name
+
+        result = subprocess.run(
+            [
+                "ffprobe",
+                "-v", "error",
+                "-show_entries", "format=duration",
+                "-of", "default=noprint_wrappers=1:nokey=1",
+                tmp_path,
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            duration = float(result.stdout.strip())
+            if duration > max_seconds:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Audio duration {duration:.1f}s exceeds maximum allowed {max_seconds}s",
+                )
+    except subprocess.TimeoutExpired:
+        logger.warning("ffprobe timed out checking audio duration")
+    except ValueError:
+        logger.warning("Could not parse audio duration from ffprobe output")
+    except FileNotFoundError:
+        logger.warning("ffprobe not found; skipping audio duration check")
+    finally:
+        if tmp_path and os.path.exists(tmp_path):
+            os.unlink(tmp_path)
 
 
 async def _run_pipeline(
@@ -582,6 +623,8 @@ async def audio_query_stream(
 
     if not audio_bytes:
         raise HTTPException(status_code=400, detail="Empty audio upload")
+
+    _check_audio_duration(audio_bytes, settings.max_recording_seconds)
 
     queue: asyncio.Queue[bytes] = asyncio.Queue()
 

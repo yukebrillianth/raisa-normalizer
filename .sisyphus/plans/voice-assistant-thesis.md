@@ -1248,7 +1248,7 @@ Wave FINAL:
   **Commit**: YES
   - Message: `feat(api): add health and graceful degradation diagnostics`
 
-- [ ] 17. GPU lab deployment scripts/docs
+- [x] 17. GPU lab deployment scripts/docs
 
   **What to do**:
   - Finalize README with lab server deployment steps.
@@ -1303,7 +1303,7 @@ Wave FINAL:
   **Commit**: YES
   - Message: `docs: finalize gpu lab deployment guide`
 
-- [ ] 18. Security/secret handling/admin guardrails
+- [x] 18. Security/secret handling/admin guardrails
 
   **What to do**:
   - Review backend/frontend for secret exposure.
@@ -1360,7 +1360,7 @@ Wave FINAL:
   **Commit**: YES
   - Message: `fix(security): guard admin and upload surfaces`
 
-- [ ] 19. Manual QA smoke assets and sample utterances
+- [x] 19. Manual QA smoke assets and sample utterances
 
   **What to do**:
   - Create sample QA checklist and sample utterance list for thesis demo.
@@ -1414,7 +1414,7 @@ Wave FINAL:
   **Commit**: YES
   - Message: `docs(qa): add thesis demo smoke scenarios`
 
-- [ ] 20. UX polish for thesis demo flow
+- [x] 20. UX polish for thesis demo flow
 
   **What to do**:
   - Polish visual hierarchy for live thesis demonstration.

@@ -7,6 +7,8 @@ type RecordControlsProps = {
   status: string;
   error?: string;
   isUploading?: boolean;
+  isRunning?: boolean;
+  resetSignal?: number;
 };
 
 export function RecordControls({
@@ -14,6 +16,8 @@ export function RecordControls({
   status,
   error,
   isUploading = false,
+  isRunning = false,
+  resetSignal = 0,
 }: RecordControlsProps) {
   return (
     <section className="paper-panel rounded-[var(--radius-panel)] p-6">
@@ -38,8 +42,16 @@ export function RecordControls({
             {error || "Tidak ada galat audio."}
           </p>
         </div>
-        <div className={isUploading ? "pointer-events-none opacity-70" : ""}>
-          <AudioRecorder onRecordingComplete={onRecordingCompleteAction} />
+        <div
+          className={`transition-opacity duration-300 ${
+            isUploading || isRunning ? "pointer-events-none opacity-70" : ""
+          }`}
+        >
+          <AudioRecorder
+            onRecordingComplete={onRecordingCompleteAction}
+            disabled={isUploading || isRunning}
+            resetSignal={resetSignal}
+          />
         </div>
       </div>
     </section>

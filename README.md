@@ -38,6 +38,7 @@ A push-to-talk voice assistant for Indonesian campus information. Built as a sen
 | Node.js | 18+ | Frontend (Next.js) |
 | CUDA-capable GPU | 8 GB+ VRAM recommended | For local model inference |
 | PostgreSQL | 14+ with `pgvector` extension | Stores QA data and embeddings |
+| ffmpeg | Current stable package | Required for browser audio decoding and conversion paths used by STT/TTS tooling |
 | OpenAI API key | Required | Whisper STT and optional TTS fallback |
 
 ---
@@ -141,7 +142,29 @@ NORMALIZER_BASE_MODEL_PATH=/home/user/models/Ministral-3-14B-Instruct-2512
 NORMALIZER_LORA_PATH=/home/user/models/pipeline/experiments/training_r16_2e4/models/lora_adapters
 ```
 
-The base model is a standard HuggingFace model directory. The LoRA adapter path points to a directory containing adapter weights from prior training (training itself is done separately, not through this app).
+The base model is a standard HuggingFace model directory. Download it before starting the backend, then point `NORMALIZER_BASE_MODEL_PATH` at the directory that contains files such as `config.json`, tokenizer files, and model weight shards. If your lab uses HuggingFace gated models, log in on the GPU server first:
+
+```bash
+huggingface-cli login
+huggingface-cli download mistralai/Ministral-3-14B-Instruct-2512 \
+  --local-dir /home/user/models/Ministral-3-14B-Instruct-2512
+```
+
+The LoRA adapter path points to a directory containing adapter weights from prior training, usually files such as `adapter_config.json` and `adapter_model.safetensors`. Training itself is done separately, not through this app. Copy the finished adapter directory to the GPU server and set `NORMALIZER_LORA_PATH` to that directory:
+
+```bash
+rsync -av ./models/lora_adapters/ user@gpu-server:/home/user/models/iris-lora/
+```
+
+For Supertonic-3 TTS, install the Python package from `backend/requirements.txt`, then predownload the model on the GPU server before demo day so the first request does not stall on model fetch. If your Supertonic setup requires a HuggingFace token, log in with `huggingface-cli login` on the server account that runs the backend. The model is cached under the normal HuggingFace cache directory, commonly `~/.cache/huggingface`, unless you set `HF_HOME`:
+
+```bash
+export HF_HOME=/home/user/.cache/huggingface
+python - <<'PY'
+import supertonic
+print("Supertonic package import OK. Run one short TTS request from the app to warm the cache.")
+PY
+```
 
 For embeddings, `BAAI/bge-m3` is downloaded automatically by HuggingFace on first run (requires internet) or cached locally at your HuggingFace cache path.
 
@@ -165,6 +188,20 @@ The database must have the `pgvector` extension enabled. Run this once as a supe
 CREATE EXTENSION IF NOT EXISTS vector;
 ```
 
+Verify the extension from the same database account used by the app:
+
+```sql
+SELECT extname, extversion FROM pg_extension WHERE extname = 'vector';
+```
+
+You can also confirm vector operators are available with a tiny smoke test:
+
+```sql
+SELECT '[1,2,3]'::vector <=> '[1,2,4]'::vector AS cosine_distance;
+```
+
+If either query fails, install the PostgreSQL `pgvector` package for your OS, restart PostgreSQL if needed, reconnect to the target database, and run `CREATE EXTENSION IF NOT EXISTS vector;` again.
+
 ### Expected Table
 
 The app queries a table (default `qa_ground_truth`) with at least these columns:
@@ -181,6 +218,16 @@ An `id` column is recommended for admin CRUD operations. The app performs schema
 
 ## Backend Setup
 
+Install ffmpeg before Python dependencies. Examples:
+
+```bash
+# Ubuntu/Debian
+sudo apt-get update && sudo apt-get install -y ffmpeg
+
+# macOS
+brew install ffmpeg
+```
+
 ```bash
 # 1. Navigate to backend directory
 cd backend
@@ -191,6 +238,9 @@ source .venv/bin/activate
 
 # 3. Install dependencies
 pip install -r requirements.txt
+
+# Equivalent explicit install command for GPU lab notes
+pip install fastapi "uvicorn[standard]" pydantic-settings python-multipart python-dotenv sentence-transformers httpx openai supertonic psycopg2-binary soundfile numpy torch transformers peft
 
 # 4. Make sure your .env file is in the project root (one level up)
 
@@ -234,7 +284,7 @@ cd frontend
 npm run dev
 ```
 
-Open `http://localhost:3000` in your browser. Press the record button, speak an Indonesian campus question, and watch the pipeline stages stream in real time.
+Open `http://localhost:3000` in your browser. Press the record button, speak an Indonesian campus question, and watch the pipeline stages stream in real time. If you access the frontend from another laptop by GPU server IP or hostname, use HTTPS or SSH port forwarding. Browsers only allow microphone capture on secure origins, except for `localhost`.
 
 ---
 
@@ -262,28 +312,35 @@ The frontend also includes an admin panel where you can enter your token to mana
 
 ### Microphone Not Working
 
-Browser microphone access requires HTTPS on any address other than `localhost`. If you deploy to a lab server and access it by IP address, the browser will block microphone access over plain HTTP.
+Browser microphone access requires HTTPS on any address other than `localhost`. If you deploy to a lab server and access it by IP address, the browser will block microphone access over plain HTTP even if the frontend loads correctly.
 
 Solutions:
 
 - Access the app via `localhost` (e.g., SSH port-forward: `ssh -L 3000:localhost:3000 user@gpu-server`)
-- Set up HTTPS with a self-signed certificate or reverse proxy
+- Set up HTTPS with a self-signed certificate, a local lab certificate authority, or a reverse proxy such as nginx or Caddy
+- If the backend is also remote, expose it through HTTPS too and set `NEXT_PUBLIC_API_URL` to that HTTPS URL
+- After changing certificates or ports, fully reload the browser tab and grant microphone permission again
 
 ### GPU Out of Memory (OOM)
 
 Loading a 14B parameter model alongside the embedding model can exhaust VRAM on smaller GPUs. If you see CUDA OOM errors:
 
 - Reduce GPU memory pressure by running inference serially (the app does this by default)
-- Use a machine with more VRAM (16 GB+ recommended)
+- Use a machine with more VRAM. 16 GB+ is recommended for smoother local 14B model demos, and more is better if other jobs share the GPU
 - Set `EMBEDDING_DEVICE=cpu` to move embeddings off the GPU
 - Close other GPU processes (`nvidia-smi` to check what's running)
+- Restart the backend after a CUDA OOM. PyTorch may keep fragmented memory until the process exits
+- Lower generation limits such as `NORMALIZER_MAX_NEW_TOKENS` and `VERBALIZER_MAX_NEW_TOKENS` for demos that only need short answers
+- Keep only one backend worker on a single GPU. Do not run multiple `uvicorn` workers unless each worker has enough VRAM for its own model copy
+- Warm up one request before presenting, then leave the process running so model loading does not happen during the demo
+- If the GPU is still too small, use the `vllm` provider on a separate inference server or switch the embedding device to CPU first, since that is the lowest-risk memory reduction
 
 ### Database Unavailable
 
 If the backend reports `DATABASE_URL` errors or `pgvector` extension missing:
 
 - Verify PostgreSQL is running and accessible from the backend
-- Check that the `vector` extension is installed (`CREATE EXTENSION IF NOT EXISTS vector;`)
+- Check that the `vector` extension is installed (`SELECT extname, extversion FROM pg_extension WHERE extname = 'vector';`)
 - Confirm the table exists: `SELECT * FROM qa_ground_truth LIMIT 1;`
 - Check your `DATABASE_URL` format and credentials
 

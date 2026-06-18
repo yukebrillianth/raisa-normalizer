@@ -195,3 +195,13 @@ T14 learnings - 2026-06-18
 - Existing visual system uses warm paper CSS variables/Tailwind v4 tokens; updated recorder styles away from default zinc/blue/red utility palette into semantic tokens (`accent`, `error`, `info`, `surface`, `line`).
 - LSP diagnostics are clean for changed frontend files; full frontend directory still has pre-existing admin client-prop serialization warnings from T15.
 - `npx next build` passes from `frontend/`.
+## T17 README GPU lab deployment docs
+
+- README keeps one deployment narrative: prerequisites, environment variables, model paths, database, backend setup, frontend setup, running, admin, troubleshooting.
+- Backend dependency list in docs should match `backend/requirements.txt`: `fastapi`, `uvicorn[standard]`, `pydantic-settings`, `python-multipart`, `python-dotenv`, `sentence-transformers`, `httpx`, `openai`, `supertonic`, `psycopg2-binary`, `soundfile`, `numpy`, `torch`, `transformers`, `peft`.
+- GPU lab docs now call out local model path setup for the base HuggingFace model, LoRA adapter directory, Supertonic cache warmup, `BAAI/bge-m3` cache behavior, pgvector verification SQL, ffmpeg install, remote microphone HTTPS caveat, and expanded CUDA OOM mitigations.
+
+
+## T19 QA smoke scenarios
+- Created `.sisyphus/qa-scenarios.md` with 15 executable smoke scenarios covering API, frontend, admin, provider fallbacks, and failure paths.
+- Confirmed actual endpoints used by implementation: `POST /api/pipeline/audio-query/stream`, `GET/POST/PUT/DELETE /api/admin/qa`, `POST /api/admin/qa/import`, `POST /api/admin/qa/{identifier}/regenerate-embedding`, `GET /api/health`, and `GET /api/audio/{filename}`.

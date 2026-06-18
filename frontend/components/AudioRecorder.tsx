@@ -8,11 +8,15 @@ import type { UseAudioRecorderReturn } from "@/hooks/useAudioRecorder";
 interface AudioRecorderProps {
   onRecordingComplete?: (blob: Blob, mimeType: string, durationSeconds: number) => void;
   maxDurationDisplay?: number;
+  disabled?: boolean;
+  resetSignal?: number;
 }
 
 export function AudioRecorder({
   onRecordingComplete,
   maxDurationDisplay = 30,
+  disabled = false,
+  resetSignal = 0,
 }: AudioRecorderProps) {
   const {
     audioBlob,
@@ -33,6 +37,7 @@ export function AudioRecorder({
   const handleKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === " " || e.key === "Enter") {
       e.preventDefault();
+      if (disabled) return;
       if (!isRecording) startRecording();
     }
   };
@@ -40,6 +45,7 @@ export function AudioRecorder({
   const handleKeyUp = (e: KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === " " || e.key === "Enter") {
       e.preventDefault();
+      if (disabled) return;
       if (isRecording) stopRecording();
     }
   };
@@ -56,12 +62,17 @@ export function AudioRecorder({
   }, [audioBlob, durationSeconds, isRecording, mimeType, onRecordingComplete]);
 
   useEffect(() => {
+    if (!isRecording) resetBlob();
+  }, [isRecording, resetBlob, resetSignal]);
+
+  useEffect(() => {
     return () => {
       if (audioUrl) URL.revokeObjectURL(audioUrl);
     };
   }, [audioUrl]);
 
   const handlePointerDown = (e: PointerEvent<HTMLButtonElement>) => {
+    if (disabled) return;
     if (isRecording) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     isHoldGestureRef.current = false;
@@ -82,6 +93,7 @@ export function AudioRecorder({
   };
 
   const handleClick = () => {
+    if (disabled) return;
     if (isHoldGestureRef.current) {
       isHoldGestureRef.current = false;
       return;
@@ -125,19 +137,28 @@ export function AudioRecorder({
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         onKeyUp={handleKeyUp}
-        disabled={!isSupported}
+        disabled={!isSupported || disabled}
         className={`relative flex h-24 w-24 items-center justify-center rounded-full border transition-all duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-accent-soft disabled:cursor-not-allowed disabled:opacity-50 ${
           isRecording
             ? "scale-110 border-error bg-error shadow-[0_18px_42px_color-mix(in_srgb,var(--error)_32%,transparent)]"
             : "border-accent-strong bg-accent shadow-[0_14px_35px_color-mix(in_srgb,var(--accent-strong)_25%,transparent)] hover:scale-105 hover:bg-accent-strong"
         }`}
-        aria-label={isRecording ? "Stop recording" : "Start recording"}
+        aria-label={
+          disabled
+            ? "Pipeline sedang berjalan"
+            : isRecording
+              ? "Hentikan rekaman"
+              : "Mulai rekaman"
+        }
       >
+        {disabled ? (
+          <span className="pointer-events-none absolute inset-0 rounded-full border border-info bg-info-soft/60" />
+        ) : null}
         {isRecording ? (
           <>
             <div className="h-8 w-8 rounded-sm bg-surface" />
             <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium text-ink-muted">
-              Release to stop
+              Lepaskan untuk berhenti
             </span>
           </>
         ) : (
@@ -147,7 +168,7 @@ export function AudioRecorder({
               <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
             </svg>
             <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium text-ink-muted">
-              Hold to record
+              {disabled ? "Pipeline berjalan" : "Tahan untuk rekam"}
             </span>
           </>
         )}
@@ -158,12 +179,12 @@ export function AudioRecorder({
           <div className="font-mono text-3xl font-semibold text-ink">
             {formatDuration(durationSeconds)}
           </div>
-          {isRecording && (
+          {isRecording ? (
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 animate-pulse rounded-full bg-error" />
-              <span className="text-sm text-ink-muted">Recording...</span>
+              <span className="text-sm text-ink-muted">Sedang merekam...</span>
             </div>
-          )}
+          ) : null}
         </div>
       )}
 
@@ -176,9 +197,7 @@ export function AudioRecorder({
             />
           </div>
           <div className="flex justify-between mt-1">
-            <span className="text-xs text-ink-muted">
-              {maxDurationDisplay - durationSeconds}s remaining
-            </span>
+            <span className="text-xs text-ink-muted">Sisa {Math.max(0, maxDurationDisplay - durationSeconds)}d</span>
           </div>
         </div>
       )}
@@ -187,14 +206,14 @@ export function AudioRecorder({
         <div className="flex flex-col items-center gap-4 mt-4">
           <audio controls className="w-full max-w-xs rounded-2xl border border-line bg-surface-strong p-2">
             <source src={audioUrl} type={mimeType} />
-            Your browser does not support audio playback.
+            Browser tidak mendukung pemutaran audio.
           </audio>
           <button
             type="button"
             onClick={handleReset}
             className="text-sm text-ink-muted underline hover:text-ink"
           >
-            Record again
+            Rekam ulang
           </button>
         </div>
       )}
@@ -202,7 +221,7 @@ export function AudioRecorder({
       {isProcessing && (
         <div className="flex flex-col items-center gap-2">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-info border-t-transparent" />
-          <p className="text-sm text-ink-muted">Processing audio...</p>
+          <p className="text-sm text-ink-muted">Memproses audio...</p>
         </div>
       )}
 
@@ -212,7 +231,7 @@ export function AudioRecorder({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div className="flex-1">
-            <p className="text-sm font-medium text-error">Recording Error</p>
+            <p className="text-sm font-medium text-error">Galat rekaman</p>
             <p className="mt-1 text-sm text-error">{error.message}</p>
           </div>
         </div>
@@ -220,7 +239,9 @@ export function AudioRecorder({
 
       {!isRecording && !audioBlob && !error && (
         <p className="mt-8 max-w-xs text-center text-sm text-ink-muted">
-          Press and hold the microphone button to start recording. Release to stop. Maximum duration: {maxDurationDisplay} seconds.
+          {disabled
+            ? "Tunggu pipeline selesai sebelum mengirim pertanyaan baru."
+            : `Tekan dan tahan tombol mikrofon untuk merekam. Durasi maksimum: ${maxDurationDisplay} detik.`}
         </p>
       )}
     </div>

@@ -8,6 +8,7 @@ export type PipelineStageData = {
   description: string;
   status: StageStatus;
   latencyMs?: number;
+  provider?: string;
   testId: string;
   detail: string;
 };

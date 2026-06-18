@@ -139,7 +139,8 @@ async def list_qa(
                 f"SELECT * FROM {table} ORDER BY question LIMIT 200"
             )
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Database error: {exc}")
+        logger.error("Database error in list_qa: %s", exc)
+        raise HTTPException(status_code=500, detail="Database error")
 
     results = [_dict_row(cols, r) for r in rows]
     return [
@@ -167,7 +168,8 @@ async def get_qa(
             params,
         )
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Database error: {exc}")
+        logger.error("Database error in get_qa: %s", exc)
+        raise HTTPException(status_code=500, detail="Database error")
 
     if not rows:
         raise HTTPException(status_code=404, detail="QA row not found")
@@ -212,7 +214,7 @@ async def create_qa(
     except Exception as exc:
         conn.rollback()
         logger.error("Create QA failed: %s", exc)
-        raise HTTPException(status_code=500, detail=f"Failed to create row: {exc}")
+        raise HTTPException(status_code=500, detail="Failed to create row")
     finally:
         conn.close()
 
@@ -242,7 +244,8 @@ async def update_qa(
             f"SELECT * FROM {table} {where} LIMIT 1", where_params
         )
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Database error: {exc}")
+        logger.error("Database error in update_qa select: %s", exc)
+        raise HTTPException(status_code=500, detail="Database error")
 
     if not rows:
         raise HTTPException(status_code=404, detail="QA row not found")
@@ -296,7 +299,7 @@ async def update_qa(
     except Exception as exc:
         conn.rollback()
         logger.error("Update QA failed: %s", exc)
-        raise HTTPException(status_code=500, detail=f"Failed to update row: {exc}")
+        raise HTTPException(status_code=500, detail="Failed to update row")
     finally:
         conn.close()
 
@@ -330,7 +333,8 @@ async def delete_qa(
             f"SELECT * FROM {table} {where} LIMIT 1", where_params
         )
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Database error: {exc}")
+        logger.error("Database error in delete_qa select: %s", exc)
+        raise HTTPException(status_code=500, detail="Database error")
 
     if not rows:
         raise HTTPException(status_code=404, detail="QA row not found")
@@ -343,7 +347,7 @@ async def delete_qa(
     except Exception as exc:
         conn.rollback()
         logger.error("Delete QA failed: %s", exc)
-        raise HTTPException(status_code=500, detail=f"Failed to delete row: {exc}")
+        raise HTTPException(status_code=500, detail="Failed to delete row")
     finally:
         conn.close()
 
@@ -380,7 +384,7 @@ async def import_csv(
     try:
         reader = csv.DictReader(io.StringIO(text))
     except Exception as exc:
-        raise HTTPException(status_code=400, detail=f"Invalid CSV format: {exc}")
+        raise HTTPException(status_code=400, detail="Invalid CSV format")
 
     if reader.fieldnames is None:
         raise HTTPException(status_code=400, detail="CSV has no header row")
@@ -424,7 +428,7 @@ async def import_csv(
     except Exception as exc:
         conn.rollback()
         logger.error("CSV import failed: %s", exc)
-        raise HTTPException(status_code=500, detail=f"Import failed: {exc}")
+        raise HTTPException(status_code=500, detail="Import failed")
     finally:
         conn.close()
 
@@ -447,7 +451,8 @@ async def regenerate_embedding(
             f"SELECT * FROM {table} {where} LIMIT 1", where_params
         )
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Database error: {exc}")
+        logger.error("Database error in regenerate_embedding select: %s", exc)
+        raise HTTPException(status_code=500, detail="Database error")
 
     if not rows:
         raise HTTPException(status_code=404, detail="QA row not found")
@@ -471,7 +476,7 @@ async def regenerate_embedding(
     except Exception as exc:
         conn.rollback()
         logger.error("Regenerate embedding failed: %s", exc)
-        raise HTTPException(status_code=500, detail=f"Failed to regenerate embedding: {exc}")
+        raise HTTPException(status_code=500, detail="Failed to regenerate embedding")
     finally:
         conn.close()
 

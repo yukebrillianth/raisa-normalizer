@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { AudioTtsPanel } from "@/components/AudioTtsPanel";
 import { ErrorPanel } from "@/components/ErrorPanel";
 import { LatencyTimeline } from "@/components/LatencyTimeline";
@@ -13,13 +13,17 @@ import { usePipelineStream } from "@/hooks/usePipelineStream";
 
 export function PipelineConsole() {
   const { state, submitAudio, reset } = usePipelineStream();
+  const [recordResetSignal, setRecordResetSignal] = useState(0);
+  const isRunning = state.phase === "uploading" || state.phase === "streaming";
 
   const handleRecordingComplete = useCallback(
     async (blob: Blob, mimeType: string) => {
+      if (isRunning) return;
+      setRecordResetSignal((current) => current + 1);
       reset();
       await submitAudio(blob, mimeType);
     },
-    [reset, submitAudio],
+    [isRunning, reset, submitAudio],
   );
 
   const recordStatus = useMemo(() => {
@@ -113,6 +117,8 @@ export function PipelineConsole() {
         status={recordStatus}
         error={recordError}
         isUploading={state.phase === "uploading"}
+        isRunning={isRunning}
+        resetSignal={recordResetSignal}
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">

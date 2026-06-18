@@ -83,3 +83,33 @@ body {
 .text-balance {
   text-wrap: balance;
 }
+
+@keyframes stage-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stage-fade-in {
+  animation: stage-fade-in 280ms ease-out both;
+}
+
+.scrollable-panel {
+  scrollbar-color: var(--line-strong) transparent;
+  scrollbar-width: thin;
+}
+
+.scrollable-panel::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollable-panel::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 9999px;
+}

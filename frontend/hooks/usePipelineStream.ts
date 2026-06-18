@@ -15,6 +15,7 @@ type StageMeta = {
   id: string;
   name: string;
   description: string;
+  provider: string;
   testId: string;
 };
 
@@ -23,42 +24,49 @@ const STAGE_META: StageMeta[] = [
     id: "stt",
     name: "1. Speech-to-Text",
     description: "Mengubah ujaran pengguna menjadi teks mentah untuk analisis berikutnya.",
+    provider: "OpenAI Whisper",
     testId: "stage-stt",
   },
   {
     id: "normalize",
     name: "2. Normalisasi Query",
     description: "Membersihkan filler, memperbaiki istilah, dan menyusun query formal bahasa Indonesia.",
+    provider: "LoRA LLM",
     testId: "stage-normalize",
   },
   {
     id: "embed",
     name: "3. Embedding",
     description: "Menyusun vektor dense dari query yang telah dinormalisasi.",
+    provider: "BGE-M3",
     testId: "stage-embed",
   },
   {
     id: "retrieve",
     name: "4. Retrieval Kandidat",
     description: "Mengambil kandidat FAQ/dokumen menggunakan skor similarity dan pencocokan kata kunci.",
+    provider: "pgvector",
     testId: "stage-retrieve",
   },
   {
     id: "baseline_rerank",
     name: "5. Reranking Baseline",
     description: "Mengurutkan ulang kandidat berdasarkan rerank skor hybrid sebelum LLM dipilih.",
+    provider: "Hybrid scorer",
     testId: "stage-baseline-rerank",
   },
   {
     id: "select_and_verbalize",
     name: "6. Seleksi & Verbalization",
     description: "Memilih jawaban final lalu mengubahnya menjadi tuturan yang ringkas dan natural.",
+    provider: "LoRA LLM",
     testId: "stage-select-verbalize",
   },
   {
     id: "tts",
     name: "7. Text-to-Speech",
     description: "Menghasilkan audio jawaban akhir untuk diputar ke pengguna.",
+    provider: "Supertonic / OpenAI",
     testId: "stage-tts",
   },
 ];
@@ -190,6 +198,7 @@ const initialState: PipelineState = {
     description: meta.description,
     status: "pending",
     testId: meta.testId,
+    provider: meta.provider,
     detail: "Menunggu event pipeline.",
   })),
   transcript: "",
@@ -264,9 +273,10 @@ function applyPipelineStart(state: PipelineState, data: SseEventData): PipelineS
     name: meta.name,
     description: meta.description,
     status: "pending" as StageStatus,
-    testId: meta.testId,
-    detail: "Menunggu event pipeline.",
-  }));
+      testId: meta.testId,
+      provider: meta.provider,
+      detail: "Menunggu event pipeline.",
+    }));
   return {
     ...initialState,
     ...state,
@@ -304,6 +314,7 @@ function applyStageComplete(state: PipelineState, data: SseEventData): PipelineS
   const stageId = typeof data.stage === "string" ? data.stage : "";
   if (!stageId) return state;
   const payload = (data.data ?? {}) as Record<string, any>;
+  const stageLatencyMs = typeof payload.latency_ms === "number" ? payload.latency_ms : undefined;
   let nextState = state;
 
   switch (stageId) {
@@ -320,6 +331,8 @@ function applyStageComplete(state: PipelineState, data: SseEventData): PipelineS
       };
       nextState = applyStageUpdate(nextState, stageId, {
         status: "complete",
+        provider: "openai_whisper",
+        latencyMs: stageLatencyMs,
         detail: transcript
           ? `Transkrip: ${transcript}${language ? ` (${language})` : ""}`
           : "Transkrip kosong diterima dari STT.",
@@ -328,9 +341,23 @@ function applyStageComplete(state: PipelineState, data: SseEventData): PipelineS
     }
     case "normalize": {
       const normalizedQuery = typeof payload.normalized_query === "string" ? payload.normalized_query : "";
-      nextState = { ...nextState, normalizedQuery };
+      const provider =
+        typeof payload.provider === "string"
+          ? payload.provider
+          : nextState.providerInfo.provider ?? STAGE_META_BY_ID[stageId]?.provider;
+      nextState = {
+        ...nextState,
+        normalizedQuery,
+        providerInfo: {
+          ...nextState.providerInfo,
+          provider,
+          model: provider,
+        },
+      };
       nextState = applyStageUpdate(nextState, stageId, {
         status: "complete",
+        provider,
+        latencyMs: stageLatencyMs,
         detail: normalizedQuery ? `Query: ${normalizedQuery}` : "Normalisasi gagal, menggunakan transkrip mentah.",
       });
       break;
@@ -347,6 +374,8 @@ function applyStageComplete(state: PipelineState, data: SseEventData): PipelineS
       };
       nextState = applyStageUpdate(nextState, stageId, {
         status: "complete",
+        provider: embeddingDim ? `bge-m3 / ${embeddingDim}d` : "bge-m3",
+        latencyMs: stageLatencyMs,
         detail: embeddingDim ? `Embedding dimensi: ${embeddingDim}` : "Embedding selesai tanpa metadata dimensi.",
       });
       break;
@@ -365,6 +394,8 @@ function applyStageComplete(state: PipelineState, data: SseEventData): PipelineS
       nextState = { ...nextState, candidates };
       nextState = applyStageUpdate(nextState, stageId, {
         status: "complete",
+        provider: "pgvector + keyword",
+        latencyMs: stageLatencyMs,
         detail: candidates.length > 0
           ? `Top-${candidates.length} kandidat ditemukan dengan skor rerank hybrid.`
           : "Tidak ada kandidat yang dikembalikan oleh retrieval.",
@@ -376,6 +407,8 @@ function applyStageComplete(state: PipelineState, data: SseEventData): PipelineS
         nextState = { ...nextState, thresholdGateSkipped: true };
         nextState = applyStageUpdate(nextState, stageId, {
           status: "complete",
+          provider: "threshold gate",
+          latencyMs: stageLatencyMs,
           detail: "Threshold gate: semua kandidat di bawah ambang similarity, LLM dilewati.",
         });
       } else {
@@ -383,6 +416,8 @@ function applyStageComplete(state: PipelineState, data: SseEventData): PipelineS
         nextState = { ...nextState, baselineSelected: selected ?? null };
         nextState = applyStageUpdate(nextState, stageId, {
           status: "complete",
+          provider: "hybrid rerank",
+          latencyMs: stageLatencyMs,
           detail: selected
             ? `Baseline rerank memilih kandidat dengan rerank_score=${
                 typeof selected.rerank_score === "number" ? selected.rerank_score.toFixed(3) : "?"
@@ -406,6 +441,8 @@ function applyStageComplete(state: PipelineState, data: SseEventData): PipelineS
         };
         nextState = applyStageUpdate(nextState, stageId, {
           status: "complete",
+          provider: "threshold gate",
+          latencyMs: stageLatencyMs,
           detail: "LLM seleksi dilewati karena threshold gate.",
         });
       } else {
@@ -424,6 +461,8 @@ function applyStageComplete(state: PipelineState, data: SseEventData): PipelineS
         nextState = { ...nextState, llmSelection };
         nextState = applyStageUpdate(nextState, stageId, {
           status: "complete",
+          provider: llmSelection.provider ?? STAGE_META_BY_ID[stageId]?.provider,
+          latencyMs: stageLatencyMs ?? llmSelection.latency_ms,
           detail: llmSelection.refused
             ? `LLM menolak memilih: ${llmSelection.refusal_reason || "tanpa alasan"}`
             : `LLM memilih rank #${llmSelection.selected_rank ?? "?"} dengan alasan seleksi tersedia.`,
@@ -450,6 +489,8 @@ function applyStageComplete(state: PipelineState, data: SseEventData): PipelineS
       };
       nextState = applyStageUpdate(nextState, stageId, {
         status: "complete",
+        provider: tts.provider ?? STAGE_META_BY_ID[stageId]?.provider,
+        latencyMs: stageLatencyMs ?? tts.latency_ms,
         detail: audioUrl
           ? `Audio TTS tersedia dari provider ${tts.provider ?? "-"}.`
           : "TTS selesai tanpa URL audio; jawaban teks tetap tersedia.",
@@ -459,6 +500,8 @@ function applyStageComplete(state: PipelineState, data: SseEventData): PipelineS
     default:
       nextState = applyStageUpdate(nextState, stageId, {
         status: "complete",
+        provider: STAGE_META_BY_ID[stageId]?.provider,
+        latencyMs: stageLatencyMs,
         detail: JSON.stringify(payload),
       });
       break;
@@ -499,6 +542,14 @@ function applyPipelineComplete(state: PipelineState, data: SseEventData): Pipeli
     { label: LATENCY_LABELS.llm_selection, ms: Number(timing.llm_selection_ms ?? 0) },
     { label: LATENCY_LABELS.tts, ms: Number(timing.tts_ms ?? 0) },
   ];
+  const stageLatencyById: Record<string, number | undefined> = {
+    stt: typeof timing.stt_ms === "number" ? timing.stt_ms : undefined,
+    normalize: typeof timing.normalization_ms === "number" ? timing.normalization_ms : undefined,
+    embed: typeof timing.embedding_ms === "number" ? timing.embedding_ms : undefined,
+    retrieve: typeof timing.retrieval_ms === "number" ? timing.retrieval_ms : undefined,
+    select_and_verbalize: typeof timing.llm_selection_ms === "number" ? timing.llm_selection_ms : undefined,
+    tts: typeof timing.tts_ms === "number" ? timing.tts_ms : undefined,
+  };
 
   let providerInfo = state.providerInfo;
   if (response.normalizer) {
@@ -537,6 +588,10 @@ function applyPipelineComplete(state: PipelineState, data: SseEventData): Pipeli
   return {
     ...state,
     phase: "done",
+    stages: state.stages.map((stage) => ({
+      ...stage,
+      latencyMs: stageLatencyById[stage.id] ?? stage.latencyMs,
+    })),
     transcript: response.transcript ?? state.transcript,
     normalizedQuery: response.normalized_query ?? state.normalizedQuery,
     providerInfo,
