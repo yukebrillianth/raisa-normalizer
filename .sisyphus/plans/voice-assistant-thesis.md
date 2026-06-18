@@ -1479,16 +1479,16 @@ Wave FINAL:
 
 > 4 review agents run in PARALLEL. ALL must APPROVE. Present consolidated results to user and get explicit "okay" before completing.
 
-- [ ] F1. **Plan Compliance Audit** — `oracle`
+- [x] F1. **Plan Compliance Audit** — `oracle`
   Read the plan end-to-end. Verify all Must Have items exist and all Must NOT Have constraints are respected. Check notebook-parity retrieval behavior, provider configurability, admin auth, no hardcoded secrets, and evidence files. Output: `Must Have [N/N] | Must NOT Have [N/N] | Tasks [N/N] | VERDICT: APPROVE/REJECT`.
 
-- [ ] F2. **Code Quality Review** — `unspecified-high`
+- [x] F2. **Code Quality Review** — `unspecified-high`
   Run available type/build/lint commands for frontend/backend. Review changed files for unsafe secrets, broad catches without structured errors, production `console.log`, unused code, hardcoded paths, and AI slop. Output: `Build [PASS/FAIL] | Lint [PASS/FAIL] | Files [N clean/N issues] | VERDICT`.
 
-- [ ] F3. **Real Manual QA** — `unspecified-high` (+ `playwright` skill for UI)
+- [x] F3. **Real Manual QA** — `unspecified-high` (+ `playwright` skill for UI)
   Execute every QA scenario from tasks, including browser recording, mock/real audio pipeline, admin add/retrieve, fallback cases, and health checks. Save evidence under `.sisyphus/evidence/final-qa/`. Output: `Scenarios [N/N pass] | Integration [N/N] | Edge Cases [N tested] | VERDICT`.
 
-- [ ] F4. **Scope Fidelity Check** — `deep`
+- [x] F4. **Scope Fidelity Check** — `deep`
   Compare implementation diff against this plan. Ensure no training pipeline, no generated RAG, no streaming v1 creep, no advanced reranker creep, no unauthenticated admin mutation, and no hardcoded secrets. Output: `Tasks [N/N compliant] | Contamination [CLEAN/N issues] | Unaccounted [CLEAN/N files] | VERDICT`.
 
 ---

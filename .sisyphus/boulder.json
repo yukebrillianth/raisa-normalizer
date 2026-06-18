@@ -21,7 +21,11 @@
     "ses_1249b5356ffe9dtoAYThnINe7W",
     "ses_12499c05affepZjL1S8oiSdea7",
     "ses_124998fd0ffeVMfk24UMwVt2jn",
-    "ses_124995d6affe57lua8azQal1f0"
+    "ses_124995d6affe57lua8azQal1f0",
+    "ses_1248c62f4ffe35tNCMvtQo2fi5",
+    "ses_1248c2255ffeCjJCIpTd07lHDl",
+    "ses_1248be453ffeC6YUEAKM765yb6",
+    "ses_1248ba930ffeSEWU2bXRbalCH3"
   ],
   "session_origins": {
     "ses_1250915efffegXnlnoAb5cze6P": "direct",
@@ -43,7 +47,11 @@
     "ses_1249b5356ffe9dtoAYThnINe7W": "appended",
     "ses_12499c05affepZjL1S8oiSdea7": "appended",
     "ses_124998fd0ffeVMfk24UMwVt2jn": "appended",
-    "ses_124995d6affe57lua8azQal1f0": "appended"
+    "ses_124995d6affe57lua8azQal1f0": "appended",
+    "ses_1248c62f4ffe35tNCMvtQo2fi5": "appended",
+    "ses_1248c2255ffeCjJCIpTd07lHDl": "appended",
+    "ses_1248be453ffeC6YUEAKM765yb6": "appended",
+    "ses_1248ba930ffeSEWU2bXRbalCH3": "appended"
   },
   "plan_name": "voice-assistant-thesis",
   "agent": "atlas",
@@ -101,6 +109,15 @@
       "agent": "Red Guard",
       "category": "visual-engineering",
       "updated_at": "2026-06-18T15:53:31.561Z"
+    },
+    "final-wave:f1": {
+      "task_key": "final-wave:f1",
+      "task_label": "F1",
+      "task_title": "**Plan Compliance Audit** — `oracle`",
+      "session_id": "ses_1248ba930ffeSEWU2bXRbalCH3",
+      "agent": "Red Guard",
+      "category": "deep",
+      "updated_at": "2026-06-18T16:05:33.578Z"
     }
   }
 }
