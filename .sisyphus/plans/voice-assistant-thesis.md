@@ -1003,7 +1003,7 @@ Wave FINAL:
   **Commit**: YES
   - Message: `feat(admin): manage qa rows and embeddings`
 
-- [ ] 13. SSE end-to-end orchestrator + LLM answer selection/verbalization
+- [x] 13. SSE end-to-end orchestrator + LLM answer selection/verbalization
 
   **What to do**:
   - Implement `/api/pipeline/audio-query/stream` SSE endpoint accepting audio + provider options and streaming stage events.
@@ -1135,7 +1135,7 @@ Wave FINAL:
   **Commit**: YES
   - Message: `feat(ui): render voice pipeline debug response`
 
-- [ ] 15. Admin panel integration
+- [x] 15. Admin panel integration
 
   **What to do**:
   - Build frontend admin/debug panel for QA list/search/add/edit/delete/import.

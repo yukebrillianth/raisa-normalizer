@@ -12,6 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from app.config import get_settings
 from app.db import get_db
 from app.routers import admin
+from app.routers import pipeline
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +59,7 @@ async def _on_startup() -> None:
 
 
 app.include_router(admin.router)
+app.include_router(pipeline.router)
 
 
 @app.get("/")

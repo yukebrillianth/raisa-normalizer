@@ -53,7 +53,7 @@ class LLMSelectionResult(BaseModel):
     """LLM-based selection / verbalization sub-response."""
 
     provider: str = Field(..., examples=["alpaca"])
-    selected_rank: int = Field(..., examples=[1])
+    selected_rank: int | None = Field(default=None, examples=[1])
     selected_question: str = ""
     selected_answer: str = ""
     reason: str = ""

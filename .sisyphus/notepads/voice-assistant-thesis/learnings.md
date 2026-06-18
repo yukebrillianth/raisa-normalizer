@@ -134,3 +134,27 @@ T12 learnings - 2026-06-18
 - Update endpoint regenerates embedding only when question text actually changes.
 - `sentence-transformers` added to requirements.txt (pulls torch, transformers, scikit-learn).
 - LSP "reportMissingImports" for fastapi/pydantic/psycopg2 are environment issues (LSP doesn't find project venv), not code errors.
+
+T13 learnings - 2026-06-18
+
+- SSE pipeline router lives at `backend/app/routers/pipeline.py` and is registered in `main.py` via `app.include_router(pipeline.router)`.
+- SSE formatting uses `event: {event_type}\ndata: {json}\n\n` with `StreamingResponse(media_type="text/event-stream")` and anti-buffering headers.
+- Pipeline stage names for streamed events are `stt`, `normalize`, `embed`, `retrieve`, `baseline_rerank`, `select_and_verbalize`, and `tts`; timing keys still use existing `TimingContext` names (`normalization`, `embedding`, `retrieval`, `llm_selection`).
+- LLM selection/verbalization provider reuses the Alpaca normalizer singleton/model/lock; the prompt includes raw transcript, normalized query, and top-3 question/answer/similarity/rerank_score candidates.
+- To prevent answer invention, final `answer` and `llm_selection.selected_answer` are copied from the selected retrieved candidate by rank, not trusted from the LLM payload; the LLM only supplies rank/reason/spoken rephrase.
+- Threshold gate skips LLM selection when no retrieved candidate passes similarity threshold and returns configured `FALLBACK_ANSWER`.
+- Graceful degradation behavior: STT/embed/retrieve fatal stop with fallback/error details; normalizer falls back to transcript; LLM selection failure falls back to baseline; TTS failure returns text-only with a recoverable stage error.
+- Verification used `python3 -m compileall app` plus source invariant checks for SSE format/events because local LSP still reports missing dependency imports (known project environment issue).
+
+T15 learnings - 2026-06-18
+
+- Created 4 files: `AdminPanel.tsx`, `AdminQAForm.tsx`, `AdminCSVImport.tsx`, `app/admin/page.tsx`.
+- All admin components use `'use client'` directive since they manage interactive state and event handlers.
+- Token stored in React state (not localStorage) per spec; auth status toggles between empty state and full panel.
+- Search uses debounced fetch with 350ms timeout via `useRef<ReturnType<typeof setTimeout>>` — real-time without hammering the API.
+- Backend URL resolved from `NEXT_PUBLIC_BACKEND_URL` env var, falling back to `http://localhost:8000`.
+- Authorization header: `Bearer ${token}` sent on every admin API call via a `headers()` useCallback.
+- Delete confirmation uses inline state (`deleteConfirmId`) rather than a separate modal component — shows "Ya/Batal" buttons in the row.
+- CSV import uses `FormData` with file input; response renders per-row errors with row numbers from backend.
+- Design patterns reused: `SectionCard`, `paper-panel`, `rounded-[var(--radius-card)]`, `border-line`, `bg-background`, `font-mono` labels, `uppercase tracking-[0.18em]`, semantic color tokens (`success-soft`, `error-soft`, `warning-soft`).
+- Build verification: `rm -rf .next && npx next build` passes with BUILD_ID generated.
