@@ -96,12 +96,12 @@ export function TimelineStage({
             {name}
           </span>
           {latencyMs !== undefined && (
-            <span className="text-[11px] font-mono text-text-muted">
+            <span className="text-[11px] text-text-muted">
               {latencyMs >= 1000 ? `${(latencyMs / 1000).toFixed(1)}s` : `${Math.round(latencyMs)}ms`}
             </span>
           )}
           {status === "active" && (
-            <span className="inline-flex items-center gap-1 text-[11px] font-mono text-its-blue">
+            <span className="inline-flex items-center gap-1 text-[11px] text-its-blue">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" className="animate-spin-slow">
                 <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.3" />
                 <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
@@ -120,7 +120,7 @@ export function TimelineStage({
 
         {/* Provider badge */}
         {provider && status === "complete" && (
-          <span className="inline-block mt-1.5 text-[10px] font-mono text-text-muted bg-surface-2 rounded px-1.5 py-0.5">
+          <span className="inline-block mt-1.5 text-[10px] text-text-muted bg-surface-2 rounded px-1.5 py-0.5">
             {provider}
           </span>
         )}

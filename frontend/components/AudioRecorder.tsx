@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
-import type { KeyboardEvent, PointerEvent } from "react";
-import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import type { UseAudioRecorderReturn } from "@/hooks/useAudioRecorder";
+import { useAudioRecorder } from "@/hooks/useAudioRecorder";
+import type { KeyboardEvent, PointerEvent } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 interface AudioRecorderProps {
   onRecordingComplete?: (blob: Blob, mimeType: string, durationSeconds: number) => void;
@@ -176,7 +176,7 @@ export function AudioRecorder({
 
       {(isRecording || durationSeconds > 0) && (
         <div className="flex flex-col items-center gap-2 mt-8">
-          <div className="font-mono text-3xl font-semibold text-ink">
+          <div className="text-3xl font-semibold text-ink">
             {formatDuration(durationSeconds)}
           </div>
           {isRecording ? (

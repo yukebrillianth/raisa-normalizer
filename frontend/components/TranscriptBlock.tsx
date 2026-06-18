@@ -26,7 +26,7 @@ export function TranscriptBlock({
               <path d="M5 10a7 7 0 0 0 14 0" />
             </svg>
           </span>
-          <span className="text-[11px] font-mono uppercase tracking-widest text-text-muted">
+          <span className="text-[11px] uppercase tracking-widest text-text-muted">
             Transkrip
           </span>
         </div>
@@ -45,7 +45,7 @@ export function TranscriptBlock({
                 <path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.855z" />
               </svg>
             </span>
-            <span className="text-[11px] font-mono uppercase tracking-widest text-its-blue">
+            <span className="text-[11px] uppercase tracking-widest text-its-blue">
               Normalisasi
             </span>
           </div>

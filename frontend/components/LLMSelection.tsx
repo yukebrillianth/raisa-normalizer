@@ -17,7 +17,7 @@ export function LLMSelection({
     <SectionCard title="Seleksi & Verbalization" eyebrow="LLM decision">
       <div data-testid="llm-selection" className="grid gap-4 lg:grid-cols-[0.55fr_1.45fr]">
         <div className="rounded-2xl border border-success bg-success-soft p-5">
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-success">
+          <p className="text-xs uppercase tracking-[0.18em] text-success">
             selected_rank
           </p>
           <p className="mt-3 text-5xl font-black tracking-[-0.08em] text-success">

@@ -23,7 +23,7 @@ export function SectionCard({
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3 border-b border-surface-3-light pb-3">
         <div>
           {eyebrow ? (
-            <p className="font-mono text-[0.68rem] uppercase tracking-[0.28em] text-its-blue">
+            <p className="text-[0.68rem] uppercase tracking-[0.28em] text-its-blue">
               {eyebrow}
             </p>
           ) : null}

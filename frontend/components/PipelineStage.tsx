@@ -47,26 +47,26 @@ export function PipelineStage({ stage }: PipelineStageProps) {
               {stage.name}
             </h3>
             <span
-              className={`rounded-full border px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] ${statusStyles[stage.status]}`}
+              className={`rounded-full border px-3 py-1 text-[0.68rem] uppercase tracking-[0.18em] ${statusStyles[stage.status]}`}
             >
               {statusLabel[stage.status]}
             </span>
-            <span className="rounded-full border border-line bg-background/80 px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-ink-muted">
+            <span className="rounded-full border border-line bg-background/80 px-3 py-1 text-[0.68rem] uppercase tracking-[0.18em] text-ink-muted">
               {stage.provider || "provider menunggu"}
             </span>
           </div>
           <p className="mt-2 text-sm leading-6 text-ink-muted">{stage.description}</p>
-          <p className="scrollable-panel mt-4 max-h-40 overflow-auto break-words rounded-2xl border border-line bg-background/70 p-4 font-mono text-xs leading-6 text-ink transition-colors duration-300">
+          <p className="scrollable-panel mt-4 max-h-40 overflow-auto break-words rounded-2xl border border-line bg-background/70 p-4 text-xs leading-6 text-ink transition-colors duration-300">
             {stage.detail}
           </p>
           {stage.status === "active" ? (
-            <div className="mt-4 flex items-center gap-2 font-mono text-xs uppercase tracking-[0.18em] text-info">
+            <div className="mt-4 flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-info">
               <span className="h-2 w-2 animate-pulse rounded-full bg-info" />
               sedang diproses...
             </div>
           ) : null}
         </div>
-        <span className="shrink-0 rounded-full border border-line-strong bg-surface-strong px-3 py-1 font-mono text-xs font-semibold text-ink">
+        <span className="shrink-0 rounded-full border border-line-strong bg-surface-strong px-3 py-1 text-xs font-semibold text-ink">
           {typeof stage.latencyMs === "number" ? `${stage.latencyMs} ms` : "latensi —"}
         </span>
       </div>

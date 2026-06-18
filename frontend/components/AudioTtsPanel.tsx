@@ -20,7 +20,7 @@ export function AudioTtsPanel({
       <div className="space-y-4">
         <p
           data-testid="tts-status"
-          className="rounded-2xl border border-info bg-info-soft p-4 font-mono text-sm text-info"
+          className="rounded-2xl border border-info bg-info-soft p-4 text-sm text-info"
         >
           {status} provider={provider} fallback={String(fallbackUsed)}
           {typeof latencyMs === "number" ? ` latency=${latencyMs.toFixed(0)}ms` : ""}

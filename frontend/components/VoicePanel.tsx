@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { MicButton } from "@/components/MicButton";
 import { TranscriptBlock } from "@/components/TranscriptBlock";
 import { AnswerBlock } from "@/components/AnswerBlock";
@@ -42,6 +42,7 @@ export function VoicePanel({
   } = useAudioRecorder();
 
   const [submitted, setSubmitted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const isRunning = phase === "uploading" || phase === "streaming";
   const hasTranscript = Boolean(transcript || normalizedQuery);
   const hasAnswer = Boolean(finalAnswer || spokenAnswer);
@@ -49,6 +50,17 @@ export function VoicePanel({
   // Auto-submit when recording stops and blob is ready
   const handleStop = useCallback(() => {
     stopRecording();
+
+    // Play/unlock audio context inside user gesture
+    if (audioRef.current) {
+      audioRef.current.play()
+        .then(() => {
+          audioRef.current?.pause();
+        })
+        .catch((err) => {
+          console.log("Audio unlock failed on stop:", err);
+        });
+    }
   }, [stopRecording]);
 
   // Watch for audioBlob changes to auto-submit
@@ -57,6 +69,17 @@ export function VoicePanel({
     onReset();
     resetBlob();
     startRecording();
+
+    // Play/unlock audio context inside user gesture
+    if (audioRef.current) {
+      audioRef.current.play()
+        .then(() => {
+          audioRef.current?.pause();
+        })
+        .catch((err) => {
+          console.log("Audio unlock failed on start:", err);
+        });
+    }
   }, [onReset, resetBlob, startRecording]);
 
   // Submit when blob becomes available after recording
@@ -118,6 +141,7 @@ export function VoicePanel({
           spokenAnswer={spokenAnswer}
           audioUrl={audioUrl}
           isVisible={hasAnswer}
+          audioRef={audioRef}
         />
       </div>
 

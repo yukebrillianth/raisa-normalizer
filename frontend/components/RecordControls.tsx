@@ -23,7 +23,7 @@ export function RecordControls({
     <section className="paper-panel rounded-[var(--radius-panel)] p-6">
       <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
         <div>
-          <p className="font-mono text-xs uppercase tracking-[0.28em] text-accent-strong">
+          <p className="text-xs uppercase tracking-[0.28em] text-accent-strong">
             Input suara
           </p>
           <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-ink">

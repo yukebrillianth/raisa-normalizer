@@ -99,13 +99,13 @@ export function AdminQAForm({
       className="rounded-lg border border-its-black bg-surface-0 p-5"
     >
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-its-blue">
+        <h3 className="text-xs uppercase tracking-[0.22em] text-its-blue">
           {isEdit ? "Edit QA" : "Tambah QA Baru"}
         </h3>
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-md border border-its-black px-3 py-1.5 font-mono text-xs text-text-primary bg-surface-0 hover:bg-surface-2 transition-colors"
+          className="rounded-md border border-its-black px-3 py-1.5 text-xs text-text-primary bg-surface-0 hover:bg-surface-2 transition-colors"
         >
           Batal
         </button>
@@ -115,7 +115,7 @@ export function AdminQAForm({
         <div>
           <label
             htmlFor={`question-${mode}`}
-            className="mb-1.5 block font-mono text-xs uppercase tracking-[0.15em] text-text-muted"
+            className="mb-1.5 block text-xs uppercase tracking-[0.15em] text-text-muted"
           >
             Pertanyaan
           </label>
@@ -132,7 +132,7 @@ export function AdminQAForm({
         <div>
           <label
             htmlFor={`answer-${mode}`}
-            className="mb-1.5 block font-mono text-xs uppercase tracking-[0.15em] text-text-muted"
+            className="mb-1.5 block text-xs uppercase tracking-[0.15em] text-text-muted"
           >
             Jawaban
           </label>
@@ -156,7 +156,7 @@ export function AdminQAForm({
       {resultEmbedding !== null && (
         <div className="mt-4 rounded-md border border-success bg-success-soft px-4 py-3 text-sm text-success">
           Berhasil disimpan! Embedding:{" "}
-          <span className="font-mono font-semibold">
+          <span className="font-semibold">
             {resultEmbedding ? "digenerate" : "tidak digenerate"}
           </span>
         </div>
@@ -166,7 +166,7 @@ export function AdminQAForm({
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-md bg-its-blue px-6 py-2 font-mono text-xs font-semibold text-white transition-colors hover:bg-its-blue-dark disabled:cursor-not-allowed disabled:opacity-50 border border-its-black"
+          className="rounded-md bg-its-blue px-6 py-2 text-xs font-semibold text-white transition-colors hover:bg-its-blue-dark disabled:cursor-not-allowed disabled:opacity-50 border border-its-black"
         >
           {submitting ? "Menyimpan..." : isEdit ? "Perbarui" : "Simpan"}
         </button>

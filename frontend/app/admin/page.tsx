@@ -11,7 +11,7 @@ export default function AdminPage() {
     <main className="min-h-screen px-4 py-6 text-text-primary sm:px-6 lg:px-8 bg-surface-1">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 animate-fade-in-up">
         <header className="raisa-card p-6 sm:p-8">
-          <p className="font-mono text-xs uppercase tracking-[0.32em] text-its-blue">
+          <p className="text-xs uppercase tracking-[0.32em] text-its-blue">
             IRIS admin console
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-black tracking-[-0.07em] text-text-primary text-balance sm:text-6xl">

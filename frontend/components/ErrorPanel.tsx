@@ -7,7 +7,7 @@ type ErrorPanelProps = {
 export function ErrorPanel({ errors = [] }: ErrorPanelProps) {
   return (
     <aside data-testid="error-panel" className="paper-panel rounded-[var(--radius-panel)] p-5">
-      <p className="font-mono text-xs uppercase tracking-[0.28em] text-accent-strong">
+      <p className="text-xs uppercase tracking-[0.28em] text-accent-strong">
         Panel galat
       </p>
       <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-ink">
@@ -24,7 +24,7 @@ export function ErrorPanel({ errors = [] }: ErrorPanelProps) {
               key={`${error.stage}-${index}`}
               className="rounded-2xl border border-error bg-error-soft p-4 text-sm leading-6 text-error"
             >
-              <p className="font-mono text-xs uppercase tracking-[0.18em]">
+              <p className="text-xs uppercase tracking-[0.18em]">
                 {error.stage} / {error.recoverable === false ? "fatal" : "recoverable"}
               </p>
               <p className="mt-2 font-semibold">{error.message}</p>

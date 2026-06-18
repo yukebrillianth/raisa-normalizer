@@ -16,7 +16,7 @@ export function RaisaHeader() {
         </div>
       </div>
       <div className="ml-auto flex items-center gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-surface-3 bg-surface-1 px-3 py-1 text-[11px] font-mono text-text-muted">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-surface-3 bg-surface-1 px-3 py-1 text-[11px] text-text-muted">
           <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
           Online
         </span>

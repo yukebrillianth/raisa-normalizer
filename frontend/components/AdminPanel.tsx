@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { SectionCard } from "@/components/SectionCard";
-import { AdminQAForm } from "@/components/AdminQAForm";
 import { AdminCSVImport } from "@/components/AdminCSVImport";
+import { AdminQAForm } from "@/components/AdminQAForm";
+import { SectionCard } from "@/components/SectionCard";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type QARow = {
   id: string;
@@ -121,7 +121,7 @@ export function AdminPanel() {
           <div>
             <label
               htmlFor="admin-token"
-              className="mb-2 block font-mono text-xs uppercase tracking-[0.18em] text-text-muted"
+              className="mb-2 block text-xs uppercase tracking-[0.18em] text-text-muted"
             >
               Admin Token
             </label>
@@ -133,12 +133,12 @@ export function AdminPanel() {
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
                 placeholder="Masukkan admin token..."
-                className="flex-1 rounded-md border border-its-black bg-surface-0 px-4 py-2 font-mono text-sm text-text-primary placeholder:text-text-muted/50 focus:border-its-blue focus:outline-none"
+                className="flex-1 rounded-md border border-its-black bg-surface-0 px-4 py-2 text-sm text-text-primary placeholder:text-text-muted/50 focus:border-its-blue focus:outline-none"
               />
               <button
                 type="submit"
                 disabled={!token.trim()}
-                className="rounded-md bg-its-blue px-6 py-2 font-mono text-sm font-semibold text-white transition-colors hover:bg-its-blue-dark disabled:cursor-not-allowed disabled:opacity-40 border border-its-black"
+                className="rounded-md bg-its-blue px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-its-blue-dark disabled:cursor-not-allowed disabled:opacity-40 border border-its-black"
               >
                 Masuk
               </button>
@@ -157,13 +157,13 @@ export function AdminPanel() {
       <div className="raisa-card flex flex-wrap items-center justify-between gap-3 p-4">
         <div className="flex items-center gap-3">
           <span className="h-2.5 w-2.5 rounded-full bg-success" />
-          <span className="font-mono text-xs text-text-muted">
+          <span className="text-xs text-text-muted">
             Terhubung sebagai admin
           </span>
         </div>
         <button
           onClick={handleLogout}
-          className="rounded-md border border-its-black px-4 py-1.5 font-mono text-xs text-text-primary bg-surface-0 hover:bg-surface-2 transition-colors"
+          className="rounded-md border border-its-black px-4 py-1.5 text-xs text-text-primary bg-surface-0 hover:bg-surface-2 transition-colors"
         >
           Keluar
         </button>
@@ -181,7 +181,7 @@ export function AdminPanel() {
           />
           <button
             onClick={() => setShowAddForm(true)}
-            className="rounded-md bg-its-blue px-5 py-2 font-mono text-xs font-semibold text-white transition-colors hover:bg-its-blue-dark border border-its-black"
+            className="rounded-md bg-its-blue px-5 py-2 text-xs font-semibold text-white transition-colors hover:bg-its-blue-dark border border-its-black"
           >
             + Tambah QA
           </button>
@@ -194,7 +194,7 @@ export function AdminPanel() {
         )}
 
         {loading && (
-          <div className="mt-4 py-8 text-center font-mono text-sm text-text-muted">
+          <div className="mt-4 py-8 text-center text-sm text-text-muted">
             Memuat data...
           </div>
         )}
@@ -224,7 +224,7 @@ export function AdminPanel() {
 
         {!loading && qaList.length === 0 && (
           <div className="mt-6 py-10 text-center">
-            <p className="font-mono text-sm text-text-muted">
+            <p className="text-sm text-text-muted">
               Tidak ada data QA ditemukan.
             </p>
           </div>
@@ -235,19 +235,19 @@ export function AdminPanel() {
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-surface-3-light">
-                  <th className="py-3 pr-4 font-mono text-xs uppercase tracking-[0.15em] text-text-muted">
+                  <th className="py-3 pr-4 text-xs uppercase tracking-[0.15em] text-text-muted">
                     ID
                   </th>
-                  <th className="py-3 pr-4 font-mono text-xs uppercase tracking-[0.15em] text-text-muted">
+                  <th className="py-3 pr-4 text-xs uppercase tracking-[0.15em] text-text-muted">
                     Pertanyaan
                   </th>
-                  <th className="py-3 pr-4 font-mono text-xs uppercase tracking-[0.15em] text-text-muted">
+                  <th className="py-3 pr-4 text-xs uppercase tracking-[0.15em] text-text-muted">
                     Jawaban
                   </th>
-                  <th className="py-3 pr-4 font-mono text-xs uppercase tracking-[0.15em] text-text-muted">
+                  <th className="py-3 pr-4 text-xs uppercase tracking-[0.15em] text-text-muted">
                     Embedding
                   </th>
-                  <th className="py-3 text-right font-mono text-xs uppercase tracking-[0.15em] text-text-muted">
+                  <th className="py-3 text-right text-xs uppercase tracking-[0.15em] text-text-muted">
                     Aksi
                   </th>
                 </tr>
@@ -259,7 +259,7 @@ export function AdminPanel() {
                     data-testid="admin-qa-row"
                     className="border-b border-surface-3-light/50 hover:bg-surface-1"
                   >
-                    <td className="max-w-24 truncate py-3 pr-4 font-mono text-xs text-text-muted">
+                    <td className="max-w-24 truncate py-3 pr-4 text-xs text-text-muted">
                       {row.id}
                     </td>
                     <td className="max-w-xs truncate py-3 pr-4 text-text-primary">
@@ -270,12 +270,12 @@ export function AdminPanel() {
                     </td>
                     <td className="py-3 pr-4">
                       {row.embedding_generated ? (
-                        <span className="inline-flex items-center gap-1 rounded bg-success-soft px-2 py-0.5 font-mono text-xs text-success border border-success/20">
+                        <span className="inline-flex items-center gap-1 rounded bg-success-soft px-2 py-0.5 text-xs text-success border border-success/20">
                           <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
                           Ya
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded bg-warning-soft px-2 py-0.5 font-mono text-xs text-warning border border-warning/20">
+                        <span className="inline-flex items-center gap-1 rounded bg-warning-soft px-2 py-0.5 text-xs text-warning border border-warning/20">
                           <span className="h-1.5 w-1.5 rounded-full bg-warning" />
                           Tidak
                         </span>
@@ -285,7 +285,7 @@ export function AdminPanel() {
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() => setEditingRow(row)}
-                          className="rounded-md border border-its-black px-3 py-1 font-mono text-xs text-text-primary bg-surface-0 hover:bg-surface-2 transition-colors"
+                          className="rounded-md border border-its-black px-3 py-1 text-xs text-text-primary bg-surface-0 hover:bg-surface-2 transition-colors"
                         >
                           Edit
                         </button>
@@ -294,13 +294,13 @@ export function AdminPanel() {
                             <button
                               onClick={() => handleDelete(row.id)}
                               disabled={deleting}
-                              className="rounded-md bg-error px-3 py-1 font-mono text-xs font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50 border border-its-black"
+                              className="rounded-md bg-error px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50 border border-its-black"
                             >
                               {deleting ? "..." : "Ya"}
                             </button>
                             <button
                               onClick={() => setDeleteConfirmId(null)}
-                              className="rounded-md border border-its-black px-3 py-1 font-mono text-xs text-text-primary bg-surface-0 hover:bg-surface-2 transition-colors"
+                              className="rounded-md border border-its-black px-3 py-1 text-xs text-text-primary bg-surface-0 hover:bg-surface-2 transition-colors"
                             >
                               Batal
                             </button>
@@ -308,7 +308,7 @@ export function AdminPanel() {
                         ) : (
                           <button
                             onClick={() => setDeleteConfirmId(row.id)}
-                            className="rounded-md border border-error px-3 py-1 font-mono text-xs text-error bg-surface-0 hover:bg-error-soft transition-colors"
+                            className="rounded-md border border-error px-3 py-1 text-xs text-error bg-surface-0 hover:bg-error-soft transition-colors"
                           >
                             Hapus
                           </button>

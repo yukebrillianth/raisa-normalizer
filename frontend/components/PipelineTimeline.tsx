@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
 import { TimelineStage } from "@/components/TimelineStage";
-import type { PipelineStageData, LatencyItem, PipelineError, RetrievalCandidate } from "@/components/types";
+import type { LatencyItem, PipelineError, PipelineStageData, RetrievalCandidate } from "@/components/types";
 import type { PipelinePhase } from "@/hooks/usePipelineStream";
+import { useMemo, useState } from "react";
 
 type PipelineTimelineProps = {
   stages: PipelineStageData[];
@@ -73,7 +73,7 @@ export function PipelineTimeline({
           <span className="text-sm font-display text-its-cover">Pipeline</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className={`text-[11px] font-mono ${phaseColor}`}>
+          <span className={`text-[11px] ${phaseColor}`}>
             {phaseLabel}
           </span>
           <svg
@@ -97,7 +97,7 @@ export function PipelineTimeline({
           {/* Request ID */}
           {requestId && (
             <div className="px-4 pt-3 pb-1">
-              <span className="text-[10px] font-mono text-text-muted">
+              <span className="text-[10px] text-text-muted">
                 {requestId}
               </span>
             </div>
@@ -127,7 +127,7 @@ export function PipelineTimeline({
           {/* Latency summary */}
           {latencyItems.some(item => item.ms > 0) && (
             <div className="px-4 py-3 border-t border-surface-3">
-              <p className="text-[11px] font-mono uppercase tracking-widest text-text-muted mb-2">
+              <p className="text-[11px] uppercase tracking-widest text-text-muted mb-2">
                 Latency
               </p>
               <div className="space-y-1">
@@ -142,14 +142,14 @@ export function PipelineTimeline({
                           style={{ width: `${Math.min((item.ms / Math.max(totalMs, 1)) * 100, 100)}%` }}
                         />
                       </div>
-                      <span className="text-[11px] font-mono text-text-muted w-14 text-right">
+                      <span className="text-[11px] text-text-muted w-14 text-right">
                         {item.ms >= 1000 ? `${(item.ms / 1000).toFixed(1)}s` : `${Math.round(item.ms)}ms`}
                       </span>
                     </div>
                   ))}
                 <div className="flex items-center justify-between pt-1 mt-1 border-t border-surface-3">
                   <span className="text-xs font-medium text-text-primary">Total</span>
-                  <span className="text-[11px] font-mono text-its-blue font-medium">
+                  <span className="text-[11px] text-its-blue font-medium">
                     {totalMs >= 1000 ? `${(totalMs / 1000).toFixed(1)}s` : `${Math.round(totalMs)}ms`}
                   </span>
                 </div>
@@ -160,13 +160,13 @@ export function PipelineTimeline({
           {/* Errors */}
           {errors.length > 0 && (
             <div className="px-4 py-3 border-t border-surface-3">
-              <p className="text-[11px] font-mono uppercase tracking-widest text-error mb-2">
+              <p className="text-[11px] uppercase tracking-widest text-error mb-2">
                 Errors
               </p>
               <div className="space-y-1.5">
                 {errors.map((err, i) => (
                   <div key={i} className="text-xs text-error bg-error-soft rounded px-2 py-1.5">
-                    <span className="font-mono font-medium">{err.stage}</span>
+                    <span className="font-medium">{err.stage}</span>
                     <span className="text-text-secondary mx-1">→</span>
                     <span>{err.message}</span>
                   </div>
@@ -191,7 +191,7 @@ function CandidatesSection({ candidates }: { candidates: RetrievalCandidate[] })
         onClick={() => setExpanded(!expanded)}
         className="flex items-center justify-between w-full text-left"
       >
-        <p className="text-[11px] font-mono uppercase tracking-widest text-text-muted">
+        <p className="text-[11px] uppercase tracking-widest text-text-muted">
           Retrieval ({candidates.length} kandidat)
         </p>
         <svg
@@ -212,8 +212,8 @@ function CandidatesSection({ candidates }: { candidates: RetrievalCandidate[] })
           {candidates.map((c) => (
             <div key={c.rank} className="rounded bg-surface-1 border border-surface-3 p-2.5 text-xs">
               <div className="flex items-center gap-2 mb-1">
-                <span className="font-mono text-its-blue font-medium">#{c.rank}</span>
-                <span className="font-mono text-text-muted">
+                <span className="text-its-blue font-medium">#{c.rank}</span>
+                <span className="text-text-muted">
                   sim={c.similarity.toFixed(3)} rr={c.rerank_score.toFixed(3)}
                 </span>
               </div>

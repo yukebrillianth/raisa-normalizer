@@ -32,7 +32,7 @@ export function TranscriptPanel({
             </p>
             <p
               data-testid="normalized-query"
-              className="break-words rounded-2xl border border-line bg-surface-strong p-4 font-mono text-sm leading-6 text-ink"
+              className="break-words rounded-2xl border border-line bg-surface-strong p-4 text-sm leading-6 text-ink"
             >
               {normalizedQuery}
             </p>
@@ -43,7 +43,7 @@ export function TranscriptPanel({
             </p>
             <p
               data-testid="provider-info"
-              className="rounded-2xl border border-info bg-info-soft p-4 font-mono text-sm text-info"
+              className="rounded-2xl border border-info bg-info-soft p-4 text-sm text-info"
             >
               {providerInfo}
             </p>

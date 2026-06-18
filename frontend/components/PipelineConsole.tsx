@@ -1,6 +1,5 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
 import { AudioTtsPanel } from "@/components/AudioTtsPanel";
 import { ErrorPanel } from "@/components/ErrorPanel";
 import { LatencyTimeline } from "@/components/LatencyTimeline";
@@ -10,6 +9,7 @@ import { RecordControls } from "@/components/RecordControls";
 import { RetrievalCandidates } from "@/components/RetrievalCandidates";
 import { TranscriptPanel } from "@/components/TranscriptPanel";
 import { usePipelineStream } from "@/hooks/usePipelineStream";
+import { useCallback, useMemo, useState } from "react";
 
 export function PipelineConsole() {
   const { state, submitAudio, reset } = usePipelineStream();
@@ -126,14 +126,14 @@ export function PipelineConsole() {
           <section className="space-y-4">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="font-mono text-xs uppercase tracking-[0.28em] text-accent-strong">
+                <p className="text-xs uppercase tracking-[0.28em] text-accent-strong">
                   Vertical pipeline flow
                 </p>
                 <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-ink">
                   Tahapan pemrosesan suara
                 </h2>
               </div>
-              <span className="rounded-full border border-line bg-surface px-4 py-2 font-mono text-xs text-ink-muted">
+              <span className="rounded-full border border-line bg-surface px-4 py-2 text-xs text-ink-muted">
                 {state.phase === "idle"
                   ? "idle / menunggu audio"
                   : state.phase === "done"

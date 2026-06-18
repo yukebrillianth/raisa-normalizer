@@ -12,7 +12,7 @@ export function LatencyTimeline({ items }: LatencyTimelineProps) {
       data-testid="latency-timeline"
       className="paper-panel rounded-[var(--radius-panel)] p-5"
     >
-      <p className="font-mono text-xs uppercase tracking-[0.28em] text-accent-strong">
+      <p className="text-xs uppercase tracking-[0.28em] text-accent-strong">
         Timeline latensi
       </p>
       <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-ink">
@@ -23,7 +23,7 @@ export function LatencyTimeline({ items }: LatencyTimelineProps) {
           <div key={item.label}>
             <div className="mb-2 flex items-center justify-between gap-3 text-sm">
               <span className="font-medium text-ink">{item.label}</span>
-              <span className="font-mono text-xs text-ink-muted">{item.ms} ms</span>
+              <span className="text-xs text-ink-muted">{item.ms} ms</span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-surface-muted">
               <div

@@ -27,7 +27,7 @@ export function RetrievalCandidates({ candidates }: RetrievalCandidatesProps) {
           <tbody className="divide-y divide-line">
             {candidates.map((candidate) => (
               <tr key={candidate.rank} className="align-top hover:bg-surface/70">
-                <td className="p-4 font-mono font-semibold text-accent-strong">
+                <td className="p-4 font-semibold text-accent-strong">
                   #{candidate.rank}
                 </td>
                 <td className="break-words p-4 leading-6 text-ink">
@@ -36,9 +36,9 @@ export function RetrievalCandidates({ candidates }: RetrievalCandidatesProps) {
                 <td className="break-words p-4 leading-6 text-ink-muted">
                   {candidate.answer}
                 </td>
-                <td className="p-4 font-mono text-ink">{candidate.similarity.toFixed(3)}</td>
-                <td className="p-4 font-mono text-ink">{candidate.keyword_score.toFixed(3)}</td>
-                <td className="p-4 font-mono font-semibold text-success">
+                <td className="p-4 text-ink">{candidate.similarity.toFixed(3)}</td>
+                <td className="p-4 text-ink">{candidate.keyword_score.toFixed(3)}</td>
+                <td className="p-4 font-semibold text-success">
                   {candidate.rerank_score.toFixed(3)}
                 </td>
               </tr>

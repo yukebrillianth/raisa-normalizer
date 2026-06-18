@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
 import { SectionCard } from "@/components/SectionCard";
+import { useRef, useState } from "react";
 
 type ImportError = {
   row?: number;
@@ -80,13 +80,13 @@ export function AdminCSVImport({ token, onImportSuccess }: AdminCSVImportProps) 
         <div className="rounded-lg border border-dashed border-surface-3-light bg-surface-0 p-5">
           <label
             htmlFor="csv-file"
-            className="mb-2 block font-mono text-xs uppercase tracking-[0.18em] text-text-muted"
+            className="mb-2 block text-xs uppercase tracking-[0.18em] text-text-muted"
           >
             Upload CSV
           </label>
           <p className="mb-4 text-sm leading-6 text-text-secondary">
-            File harus memiliki header <span className="font-mono text-text-primary font-medium">question</span> dan{" "}
-            <span className="font-mono text-text-primary font-medium">answer</span>. Setiap baris akan dibuat dengan
+            File harus memiliki header <span className="text-text-primary font-medium">question</span> dan{" "}
+            <span className="text-text-primary font-medium">answer</span>. Setiap baris akan dibuat dengan
             embedding baru dari backend.
           </p>
 
@@ -98,12 +98,12 @@ export function AdminCSVImport({ token, onImportSuccess }: AdminCSVImportProps) 
               type="file"
               accept=".csv,text/csv"
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              className="block flex-1 text-sm text-text-secondary file:mr-4 file:rounded-md file:border file:border-its-black file:bg-surface-2 file:px-4 file:py-2 file:font-mono file:text-xs file:font-semibold file:text-text-primary hover:file:bg-surface-3-light cursor-pointer"
+              className="block flex-1 text-sm text-text-secondary file:mr-4 file:rounded-md file:border file:border-its-black file:bg-surface-2 file:px-4 file:py-2 file:file:text-xs file:font-semibold file:text-text-primary hover:file:bg-surface-3-light cursor-pointer"
             />
             <button
               type="submit"
               disabled={importing || !file}
-              className="rounded-md bg-its-blue px-5 py-2 font-mono text-xs font-semibold text-white transition-colors hover:bg-its-blue-dark disabled:cursor-not-allowed disabled:opacity-50 border border-its-black"
+              className="rounded-md bg-its-blue px-5 py-2 text-xs font-semibold text-white transition-colors hover:bg-its-blue-dark disabled:cursor-not-allowed disabled:opacity-50 border border-its-black"
             >
               {importing ? "Mengimport..." : "Import CSV"}
             </button>
@@ -111,7 +111,7 @@ export function AdminCSVImport({ token, onImportSuccess }: AdminCSVImportProps) 
               <button
                 type="button"
                 onClick={clearFile}
-                className="rounded-md border border-its-black px-4 py-2 font-mono text-xs text-text-primary bg-surface-0 hover:bg-surface-2 transition-colors"
+                className="rounded-md border border-its-black px-4 py-2 text-xs text-text-primary bg-surface-0 hover:bg-surface-2 transition-colors"
               >
                 Bersihkan
               </button>
@@ -130,7 +130,7 @@ export function AdminCSVImport({ token, onImportSuccess }: AdminCSVImportProps) 
         <div className="mt-5 space-y-4" data-testid="admin-csv-result">
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-lg border border-its-black bg-surface-0 p-4">
-              <p className="font-mono text-xs uppercase tracking-[0.15em] text-text-muted">
+              <p className="text-xs uppercase tracking-[0.15em] text-text-muted">
                 Total rows
               </p>
               <p className="mt-2 text-2xl font-bold tracking-[-0.05em] text-text-primary">
@@ -138,7 +138,7 @@ export function AdminCSVImport({ token, onImportSuccess }: AdminCSVImportProps) 
               </p>
             </div>
             <div className="rounded-lg border border-success bg-success-soft p-4">
-              <p className="font-mono text-xs uppercase tracking-[0.15em] text-success">
+              <p className="text-xs uppercase tracking-[0.15em] text-success">
                 Imported
               </p>
               <p className="mt-2 text-2xl font-bold tracking-[-0.05em] text-success">
@@ -146,7 +146,7 @@ export function AdminCSVImport({ token, onImportSuccess }: AdminCSVImportProps) 
               </p>
             </div>
             <div className="rounded-lg border border-error bg-error-soft p-4">
-              <p className="font-mono text-xs uppercase tracking-[0.15em] text-error">
+              <p className="text-xs uppercase tracking-[0.15em] text-error">
                 Failed
               </p>
               <p className="mt-2 text-2xl font-bold tracking-[-0.05em] text-error">
@@ -158,7 +158,7 @@ export function AdminCSVImport({ token, onImportSuccess }: AdminCSVImportProps) 
           {result.errors.length > 0 ? (
             <div className="overflow-hidden rounded-lg border border-error bg-error-soft">
               <div className="border-b border-error/30 px-4 py-3">
-                <h3 className="font-mono text-xs uppercase tracking-[0.18em] text-error">
+                <h3 className="text-xs uppercase tracking-[0.18em] text-error">
                   Row-level errors
                 </h3>
               </div>
@@ -168,7 +168,7 @@ export function AdminCSVImport({ token, onImportSuccess }: AdminCSVImportProps) 
                     key={`${item.row ?? "unknown"}-${idx}`}
                     className="grid gap-2 border-b border-error/20 px-4 py-3 text-sm last:border-b-0 sm:grid-cols-[7rem_1fr]"
                   >
-                    <span className="font-mono text-error">
+                    <span className="text-error">
                       Row {item.row ?? "?"}
                     </span>
                     <span className="text-error">{item.error}</span>
