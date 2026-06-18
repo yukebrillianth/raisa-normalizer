@@ -33,6 +33,15 @@ class TTSSynthesisError(RuntimeError):
 class SupertonicTTSProvider(TTSProvider):
     """Indonesian TTS using the Supertonic-3 ONNX model."""
 
+    _instance: SupertonicTTSProvider | None = None
+
+    @classmethod
+    def get_instance(cls) -> SupertonicTTSProvider:
+        """Return (or create) the process-wide singleton."""
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
+
     def __init__(self) -> None:
         self.settings = get_settings()
         self._tts: Any | None = None

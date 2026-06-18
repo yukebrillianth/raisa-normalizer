@@ -2,7 +2,7 @@
 
 export function RaisaHeader() {
   return (
-    <header className="flex items-center gap-4 px-6 py-4 border-b border-surface-3 bg-surface-0">
+    <header className="flex items-center gap-4 px-6 py-4 bg-surface-0">
       <div className="flex items-center gap-3">
         {/* ITS accent bar */}
         <div className="w-1 h-8 rounded-full bg-its-blue" />

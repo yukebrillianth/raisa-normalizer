@@ -23,6 +23,15 @@ class BGEEmbeddingProvider(EmbeddingProvider):
     It is set to ``eval()`` mode after loading, matching the notebook pattern.
     """
 
+    _instance: BGEEmbeddingProvider | None = None
+
+    @classmethod
+    def get_instance(cls) -> BGEEmbeddingProvider:
+        """Return (or create) the process-wide singleton."""
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
+
     def __init__(self) -> None:
         settings = get_settings()
         self.model_name: str = settings.embedding_model_name

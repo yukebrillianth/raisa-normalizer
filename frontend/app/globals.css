@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 /* ─────────────────────────────────────────────────────────
-   RAISA Design System — ITS Branding, Horizontal Layout
-   Colors: Biru #007BC0, Cover #243E80, Hitam #2D2C2F
+   RAISA Design System — ITS Branding, Borderless Premium Editorial
+   Colors: Biru Tua Lambang #007BC0, Putih Cemerlang #EFEFED, Hitam Legam #2D2C2F
    Fonts: Friz Quadrata Std (display), Work Sans (body)
    ───────────────────────────────────────────────────────── */
 
@@ -15,58 +15,58 @@
 }
 
 :root {
-  /* ── ITS Brand Colors ──────────────────────────── */
+  /* ── ITS Brand Colors (Exact User Requests) ─────── */
   --its-blue: #007BC0;
-  --its-blue-dark: #005a8c;
-  --its-blue-light: #4da3d9;
-  --its-cover: #243E80;
-  --its-cover-dark: #1a2d5e;
+  --its-blue-dark: #005f94;
+  --its-blue-light: #3395cc;
+  --its-cover: #007BC0;
   --its-black: #2D2C2F;
 
-  /* ── Surfaces — clean, not warm ────────────────── */
-  --surface-0: #FFFFFF;
-  --surface-1: #F8F9FB;
-  --surface-2: #F0F2F5;
-  --surface-3: #E4E7EB;
+  /* ── Surfaces (Exact User Requests) ─────────────── */
+  --surface-0: #FFFFFF; /* Pure white for cards */
+  --surface-1: #EFEFED; /* Putih cemerlang (app background) */
+  --surface-2: #E5E5E5; /* Element backgrounds */
+  --surface-3: transparent; /* No borders */
+  --surface-3-light: transparent; /* No borders */
 
   /* ── Text ──────────────────────────────────────── */
-  --text-primary: #2D2C2F;
-  --text-secondary: #555553;
-  --text-muted: #8B8B89;
+  --text-primary: #2D2C2F; /* Hitam legam */
+  --text-secondary: #4E4D50;
+  --text-muted: #7E7C80;
   --text-inverse: #FFFFFF;
 
   /* ── Accent ────────────────────────────────────── */
   --accent: #007BC0;
-  --accent-dark: #005a8c;
-  --accent-soft: #e8f4fb;
+  --accent-dark: #005f94;
+  --accent-soft: #E5F2FA;
   --accent-hover: #0069a3;
 
   /* ── Status ────────────────────────────────────── */
   --success: #16a34a;
-  --success-soft: #dcfce7;
+  --success-soft: #E6F7ED;
   --warning: #d97706;
-  --warning-soft: #fef3c7;
+  --warning-soft: #FEF8E7;
   --error: #dc2626;
-  --error-soft: #fee2e2;
-  --info: #0284c7;
-  --info-soft: #e0f2fe;
+  --error-soft: #FDF2F2;
+  --info: #007BC0;
+  --info-soft: #E5F2FA;
 
-  /* ── Typography ────────────────────────────────── */
+  /* ── Typography (Mapped to Next.js loaded fonts) ── */
   --font-display: 'Friz Quadrata Std', Georgia, 'Times New Roman', serif;
-  --font-body: 'Work Sans', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+  --font-body: var(--font-work-sans), 'Work Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, monospace;
 
   /* ── Spacing ───────────────────────────────────── */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
 
-  /* ── Shadows — minimal, no heavy drop-shadows ─── */
-  --shadow-xs: 0 1px 2px rgba(45, 44, 47, 0.04);
-  --shadow-sm: 0 1px 3px rgba(45, 44, 47, 0.06);
-  --shadow-md: 0 2px 8px rgba(45, 44, 47, 0.08);
+  /* ── Shadows (Zero shadow for a clean look) ────── */
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: none;
 
   /* ── Transitions ───────────────────────────────── */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -85,6 +85,7 @@
   --color-surface-1: var(--surface-1);
   --color-surface-2: var(--surface-2);
   --color-surface-3: var(--surface-3);
+  --color-surface-3-light: var(--surface-3-light);
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
@@ -113,12 +114,12 @@ body {
   background-color: var(--surface-1);
   color: var(--text-primary);
   font-family: var(--font-body);
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 ::selection {
-  background: var(--accent-soft);
-  color: var(--its-cover);
+  background: var(--its-blue);
+  color: var(--text-inverse);
 }
 
 /* ── Utility classes ─────────────────────────────── */
@@ -139,23 +140,25 @@ body {
   text-wrap: balance;
 }
 
-/* ── Card styles — clean borders, minimal shadow ── */
+/* ── Card styles — borderless, flat, generous padding ── */
 
 .raisa-card {
   background: var(--surface-0);
-  border: 1px solid var(--surface-3);
+  border: none;
   border-radius: var(--radius-lg);
+  box-shadow: none;
+  transition: all var(--duration-normal) var(--ease-out);
 }
 
 .raisa-card-flush {
   background: var(--surface-0);
-  border: 1px solid var(--surface-3);
+  border: none;
 }
 
 /* ── Scrollbar ───────────────────────────────────── */
 
 .scrollable {
-  scrollbar-color: var(--surface-3) transparent;
+  scrollbar-color: var(--its-blue) transparent;
   scrollbar-width: thin;
 }
 
@@ -165,12 +168,12 @@ body {
 }
 
 .scrollable::-webkit-scrollbar-thumb {
-  background: var(--surface-3);
-  border-radius: 9999px;
+  background: var(--surface-2);
+  border-radius: var(--radius-full);
 }
 
 .scrollable::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  background: var(--its-blue);
 }
 
 /* ── Animations ──────────────────────────────────── */
@@ -178,7 +181,7 @@ body {
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -191,24 +194,24 @@ body {
   to { opacity: 1; }
 }
 
-@keyframes pulseRing {
+@keyframes pulseOutline {
   0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--its-blue) 45%, transparent);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--its-blue) 20%, transparent);
   }
   70% {
-    box-shadow: 0 0 0 20px transparent;
+    box-shadow: 0 0 0 16px transparent;
   }
   100% {
     box-shadow: 0 0 0 0 transparent;
   }
 }
 
-@keyframes pulseRingLarge {
+@keyframes pulseOutlineRed {
   0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--its-blue) 35%, transparent);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--error) 25%, transparent);
   }
   70% {
-    box-shadow: 0 0 0 32px transparent;
+    box-shadow: 0 0 0 24px transparent;
   }
   100% {
     box-shadow: 0 0 0 0 transparent;
@@ -222,16 +225,25 @@ body {
 @keyframes stagePop {
   from {
     opacity: 0;
-    transform: translateY(6px) scale(0.97);
+    transform: translateY(4px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
+  }
+}
+
+@keyframes waveBounce {
+  0%, 100% {
+    transform: scaleY(0.25);
+  }
+  50% {
+    transform: scaleY(1.0);
   }
 }
 
 .animate-fade-in-up {
-  animation: fadeInUp 300ms var(--ease-out) both;
+  animation: fadeInUp 350ms var(--ease-out) both;
 }
 
 .animate-fade-in {
@@ -239,19 +251,24 @@ body {
 }
 
 .animate-pulse-ring {
-  animation: pulseRing 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: pulseOutline 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
 
 .animate-pulse-ring-large {
-  animation: pulseRingLarge 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: pulseOutlineRed 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
 
 .animate-stage-pop {
-  animation: stagePop 280ms var(--ease-out) both;
+  animation: stagePop 200ms var(--ease-out) both;
 }
 
 .animate-spin-slow {
   animation: spin 1.2s linear infinite;
+}
+
+.animate-wave-bar {
+  animation: waveBounce 0.8s ease-in-out infinite;
+  transform-origin: center;
 }
 
 /* ── Timeline connector ──────────────────────────── */
@@ -262,7 +279,7 @@ body {
   top: 28px;
   bottom: -8px;
   width: 2px;
-  background: var(--surface-3);
+  background: var(--surface-2);
 }
 
 .timeline-line-active {
@@ -273,11 +290,11 @@ body {
   background: var(--success);
 }
 
-/* ── Mic button states ───────────────────────────── */
+/* ── Mic button states (Stark Circular Flat Style) ─── */
 
 .mic-btn {
-  width: 80px;
-  height: 80px;
+  width: 88px;
+  height: 88px;
   border-radius: 50%;
   border: none;
   cursor: pointer;
@@ -286,6 +303,7 @@ body {
   justify-content: center;
   transition: all var(--duration-normal) var(--ease-out);
   position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* very soft shadow for float */
 }
 
 .mic-btn-idle {
@@ -294,18 +312,27 @@ body {
 }
 
 .mic-btn-idle:hover {
-  background: var(--accent-hover);
-  transform: scale(1.05);
+  background: var(--its-blue-dark);
+  transform: scale(1.04);
+}
+
+.mic-btn-idle:active {
+  transform: scale(0.96);
 }
 
 .mic-btn-recording {
   background: var(--error);
   color: white;
-  animation: pulseRingLarge 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: pulseOutlineRed 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.mic-btn-recording:hover {
+  background: #b91c1c;
+  transform: scale(1.02);
 }
 
 .mic-btn-processing {
-  background: var(--surface-3);
+  background: var(--surface-2);
   color: var(--text-muted);
   cursor: not-allowed;
 }
@@ -314,8 +341,9 @@ body {
 
 .audio-player audio {
   width: 100%;
-  height: 36px;
+  height: 40px;
   border-radius: var(--radius-md);
+  border: none;
 }
 
 .audio-player audio::-webkit-media-controls-panel {

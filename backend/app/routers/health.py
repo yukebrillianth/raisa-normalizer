@@ -11,14 +11,14 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from fastapi import APIRouter
-
 from app.config import get_settings
 from app.db import get_db
-from app.providers.normalizer import AlpacaNormalizerProvider, VLLMNormalizerProvider
+from app.providers.normalizer import (AlpacaNormalizerProvider,
+                                      VLLMNormalizerProvider)
 from app.providers.retrieval import BGEEmbeddingProvider
 from app.providers.stt.openai import OpenAIWhisperSTTProvider
 from app.providers.tts import OpenAITTSProvider, SupertonicTTSProvider
+from fastapi import APIRouter
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ async def _db_health() -> dict[str, Any]:
 async def _embedding_health() -> dict[str, Any]:
     """Embedding model readiness."""
     try:
-        provider = BGEEmbeddingProvider()
+        provider = BGEEmbeddingProvider.get_instance()
         return await provider.health()
     except Exception as exc:
         logger.warning("Embedding health check failed: %s", exc)
@@ -93,7 +93,7 @@ async def _tts_health() -> dict[str, Any]:
     """TTS sub-providers: Supertonic (optional, local GPU) and OpenAI (fallback)."""
     supertonic: dict[str, Any] = {}
     try:
-        provider = SupertonicTTSProvider()
+        provider = SupertonicTTSProvider.get_instance()
         supertonic = await provider.health()
     except Exception as exc:
         # Supertonic is optional — may not be installed or GPU unavailable
@@ -102,7 +102,7 @@ async def _tts_health() -> dict[str, Any]:
 
     openai_tts: dict[str, Any] = {}
     try:
-        provider = OpenAITTSProvider()
+        provider = OpenAITTSProvider.get_instance()
         result = await provider.health()
         # Enforce: api_key_configured is bool only
         result["api_key_configured"] = bool(get_settings().openai_api_key)

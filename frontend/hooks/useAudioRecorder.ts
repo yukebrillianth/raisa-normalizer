@@ -17,6 +17,7 @@ export interface UseAudioRecorderReturn {
   startRecording: () => Promise<void>;
   stopRecording: () => void;
   resetBlob: () => void;
+  stream: MediaStream | null;
 }
 
 const PREFERRED_MIME_TYPES = [
@@ -48,6 +49,7 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<UseAudioRecorderReturn["error"]>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
 
   const streamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
@@ -71,6 +73,7 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
   const cleanupStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
+    setStream(null);
   }, []);
 
   const stopRecording = useCallback(() => {
@@ -105,6 +108,7 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
+      setStream(stream);
     } catch (err: unknown) {
       const e = err as DOMException | null;
       if (e?.name === "NotAllowedError" || e?.name === "PermissionDeniedError") {
@@ -189,5 +193,6 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
     startRecording,
     stopRecording,
     resetBlob,
+    stream,
   };
 }

@@ -96,16 +96,16 @@ export function AdminQAForm({
     <form
       data-testid={isEdit ? "admin-edit-form" : "admin-add-form"}
       onSubmit={handleSubmit}
-      className="rounded-[var(--radius-card)] border border-line bg-surface-strong/60 p-5"
+      className="rounded-lg border border-its-black bg-surface-0 p-5"
     >
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-accent-strong">
+        <h3 className="font-mono text-xs uppercase tracking-[0.22em] text-its-blue">
           {isEdit ? "Edit QA" : "Tambah QA Baru"}
         </h3>
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-lg border border-line px-3 py-1.5 font-mono text-xs text-ink-muted transition-colors hover:border-line-strong"
+          className="rounded-md border border-its-black px-3 py-1.5 font-mono text-xs text-text-primary bg-surface-0 hover:bg-surface-2 transition-colors"
         >
           Batal
         </button>
@@ -115,7 +115,7 @@ export function AdminQAForm({
         <div>
           <label
             htmlFor={`question-${mode}`}
-            className="mb-1.5 block font-mono text-xs uppercase tracking-[0.15em] text-ink-muted"
+            className="mb-1.5 block font-mono text-xs uppercase tracking-[0.15em] text-text-muted"
           >
             Pertanyaan
           </label>
@@ -125,14 +125,14 @@ export function AdminQAForm({
             onChange={(e) => setQuestion(e.target.value)}
             rows={3}
             placeholder="Masukkan pertanyaan..."
-            className="w-full rounded-xl border border-line bg-background px-4 py-3 text-sm text-ink placeholder:text-ink-muted/50 focus:border-accent focus:outline-none"
+            className="w-full rounded-md border border-its-black bg-surface-0 px-4 py-3 text-sm text-text-primary placeholder:text-text-muted/50 focus:border-its-blue focus:outline-none"
           />
         </div>
 
         <div>
           <label
             htmlFor={`answer-${mode}`}
-            className="mb-1.5 block font-mono text-xs uppercase tracking-[0.15em] text-ink-muted"
+            className="mb-1.5 block font-mono text-xs uppercase tracking-[0.15em] text-text-muted"
           >
             Jawaban
           </label>
@@ -142,19 +142,19 @@ export function AdminQAForm({
             onChange={(e) => setAnswer(e.target.value)}
             rows={4}
             placeholder="Masukkan jawaban..."
-            className="w-full rounded-xl border border-line bg-background px-4 py-3 text-sm text-ink placeholder:text-ink-muted/50 focus:border-accent focus:outline-none"
+            className="w-full rounded-md border border-its-black bg-surface-0 px-4 py-3 text-sm text-text-primary placeholder:text-text-muted/50 focus:border-its-blue focus:outline-none"
           />
         </div>
       </div>
 
       {error && (
-        <div className="mt-4 rounded-xl border border-error bg-error-soft px-4 py-3 text-sm text-error">
+        <div className="mt-4 rounded-md border border-error bg-error-soft px-4 py-3 text-sm text-error">
           {error}
         </div>
       )}
 
       {resultEmbedding !== null && (
-        <div className="mt-4 rounded-xl border border-success bg-success-soft px-4 py-3 text-sm text-success">
+        <div className="mt-4 rounded-md border border-success bg-success-soft px-4 py-3 text-sm text-success">
           Berhasil disimpan! Embedding:{" "}
           <span className="font-mono font-semibold">
             {resultEmbedding ? "digenerate" : "tidak digenerate"}
@@ -166,7 +166,7 @@ export function AdminQAForm({
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-xl bg-accent px-6 py-2.5 font-mono text-xs font-semibold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-md bg-its-blue px-6 py-2 font-mono text-xs font-semibold text-white transition-colors hover:bg-its-blue-dark disabled:cursor-not-allowed disabled:opacity-50 border border-its-black"
         >
           {submitting ? "Menyimpan..." : isEdit ? "Perbarui" : "Simpan"}
         </button>

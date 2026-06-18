@@ -77,16 +77,16 @@ export function AdminCSVImport({ token, onImportSuccess }: AdminCSVImportProps) 
   return (
     <SectionCard title="CSV Import" eyebrow="Bulk QA loader" testId="admin-csv-import">
       <form onSubmit={handleImport} className="space-y-4">
-        <div className="rounded-[var(--radius-card)] border border-dashed border-line bg-background/70 p-5">
+        <div className="rounded-lg border border-dashed border-surface-3-light bg-surface-0 p-5">
           <label
             htmlFor="csv-file"
-            className="mb-2 block font-mono text-xs uppercase tracking-[0.18em] text-ink-muted"
+            className="mb-2 block font-mono text-xs uppercase tracking-[0.18em] text-text-muted"
           >
             Upload CSV
           </label>
-          <p className="mb-4 text-sm leading-6 text-ink-muted">
-            File harus memiliki header <span className="font-mono text-ink">question</span> dan{" "}
-            <span className="font-mono text-ink">answer</span>. Setiap baris akan dibuat dengan
+          <p className="mb-4 text-sm leading-6 text-text-secondary">
+            File harus memiliki header <span className="font-mono text-text-primary font-medium">question</span> dan{" "}
+            <span className="font-mono text-text-primary font-medium">answer</span>. Setiap baris akan dibuat dengan
             embedding baru dari backend.
           </p>
 
@@ -98,12 +98,12 @@ export function AdminCSVImport({ token, onImportSuccess }: AdminCSVImportProps) 
               type="file"
               accept=".csv,text/csv"
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              className="block flex-1 text-sm text-ink-muted file:mr-4 file:rounded-xl file:border-0 file:bg-surface-strong file:px-4 file:py-2.5 file:font-mono file:text-xs file:font-semibold file:text-ink hover:file:bg-surface-muted"
+              className="block flex-1 text-sm text-text-secondary file:mr-4 file:rounded-md file:border file:border-its-black file:bg-surface-2 file:px-4 file:py-2 file:font-mono file:text-xs file:font-semibold file:text-text-primary hover:file:bg-surface-3-light cursor-pointer"
             />
             <button
               type="submit"
               disabled={importing || !file}
-              className="rounded-xl bg-accent px-5 py-2.5 font-mono text-xs font-semibold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-md bg-its-blue px-5 py-2 font-mono text-xs font-semibold text-white transition-colors hover:bg-its-blue-dark disabled:cursor-not-allowed disabled:opacity-50 border border-its-black"
             >
               {importing ? "Mengimport..." : "Import CSV"}
             </button>
@@ -111,7 +111,7 @@ export function AdminCSVImport({ token, onImportSuccess }: AdminCSVImportProps) 
               <button
                 type="button"
                 onClick={clearFile}
-                className="rounded-xl border border-line px-4 py-2.5 font-mono text-xs text-ink-muted transition-colors hover:border-line-strong"
+                className="rounded-md border border-its-black px-4 py-2 font-mono text-xs text-text-primary bg-surface-0 hover:bg-surface-2 transition-colors"
               >
                 Bersihkan
               </button>
@@ -121,7 +121,7 @@ export function AdminCSVImport({ token, onImportSuccess }: AdminCSVImportProps) 
       </form>
 
       {error && (
-        <div className="mt-4 rounded-xl border border-error bg-error-soft px-4 py-3 text-sm text-error">
+        <div className="mt-4 rounded-md border border-error bg-error-soft px-4 py-3 text-sm text-error">
           {error}
         </div>
       )}
@@ -129,34 +129,34 @@ export function AdminCSVImport({ token, onImportSuccess }: AdminCSVImportProps) 
       {result && (
         <div className="mt-5 space-y-4" data-testid="admin-csv-result">
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-xl border border-line bg-background p-4">
-              <p className="font-mono text-xs uppercase tracking-[0.15em] text-ink-muted">
+            <div className="rounded-lg border border-its-black bg-surface-0 p-4">
+              <p className="font-mono text-xs uppercase tracking-[0.15em] text-text-muted">
                 Total rows
               </p>
-              <p className="mt-2 text-2xl font-black tracking-[-0.05em] text-ink">
+              <p className="mt-2 text-2xl font-bold tracking-[-0.05em] text-text-primary">
                 {result.total}
               </p>
             </div>
-            <div className="rounded-xl border border-success bg-success-soft p-4">
+            <div className="rounded-lg border border-success bg-success-soft p-4">
               <p className="font-mono text-xs uppercase tracking-[0.15em] text-success">
                 Imported
               </p>
-              <p className="mt-2 text-2xl font-black tracking-[-0.05em] text-success">
+              <p className="mt-2 text-2xl font-bold tracking-[-0.05em] text-success">
                 {result.imported}
               </p>
             </div>
-            <div className="rounded-xl border border-error bg-error-soft p-4">
+            <div className="rounded-lg border border-error bg-error-soft p-4">
               <p className="font-mono text-xs uppercase tracking-[0.15em] text-error">
                 Failed
               </p>
-              <p className="mt-2 text-2xl font-black tracking-[-0.05em] text-error">
+              <p className="mt-2 text-2xl font-bold tracking-[-0.05em] text-error">
                 {result.errors.length}
               </p>
             </div>
           </div>
 
           {result.errors.length > 0 ? (
-            <div className="overflow-hidden rounded-xl border border-error bg-error-soft">
+            <div className="overflow-hidden rounded-lg border border-error bg-error-soft">
               <div className="border-b border-error/30 px-4 py-3">
                 <h3 className="font-mono text-xs uppercase tracking-[0.18em] text-error">
                   Row-level errors
@@ -177,7 +177,7 @@ export function AdminCSVImport({ token, onImportSuccess }: AdminCSVImportProps) 
               </div>
             </div>
           ) : (
-            <div className="rounded-xl border border-success bg-success-soft px-4 py-3 text-sm text-success">
+            <div className="rounded-lg border border-success bg-success-soft px-4 py-3 text-sm text-success">
               Semua baris berhasil diimport.
             </div>
           )}

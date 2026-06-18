@@ -18,16 +18,16 @@ export function SectionCard({
   return (
     <section
       data-testid={testId}
-      className={`paper-panel rounded-[var(--radius-card)] p-5 ${className}`}
+      className={`raisa-card p-5 ${className}`}
     >
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-3 border-b border-line pb-3">
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-3 border-b border-surface-3-light pb-3">
         <div>
           {eyebrow ? (
-            <p className="font-mono text-[0.68rem] uppercase tracking-[0.28em] text-accent-strong">
+            <p className="font-mono text-[0.68rem] uppercase tracking-[0.28em] text-its-blue">
               {eyebrow}
             </p>
           ) : null}
-          <h2 className="mt-1 text-xl font-semibold tracking-[-0.03em] text-ink">
+          <h2 className="mt-1 text-xl font-semibold tracking-[-0.03em] text-text-primary">
             {title}
           </h2>
         </div>

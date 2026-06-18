@@ -19,30 +19,24 @@ import tempfile
 import time
 from typing import Any
 
+from app.config import get_settings
+from app.providers.normalizer import (AlpacaNormalizerProvider,
+                                      VLLMNormalizerProvider)
+from app.providers.retrieval import (BGEEmbeddingProvider,
+                                     PgvectorRetrievalProvider)
+from app.providers.schemas import (LLMSelectionResult, PipelineCompleteEvent,
+                                   PipelineResponse, PipelineStartEvent,
+                                   ProviderMeta, RetrievalResult,
+                                   StageCompleteEvent, StageError,
+                                   StageErrorEvent, StageStartEvent,
+                                   TimingResult, TTSResult)
+from app.providers.selection_verbalizer import \
+    OpenAISelectionVerbalizerProvider
+from app.providers.stt.openai import OpenAIWhisperSTTProvider, STTProviderError
+from app.providers.timing import TimingContext, generate_request_id
+from app.providers.tts import OpenAITTSProvider, SupertonicTTSProvider
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
-
-from app.config import get_settings
-from app.providers.normalizer import AlpacaNormalizerProvider, VLLMNormalizerProvider
-from app.providers.retrieval import BGEEmbeddingProvider, PgvectorRetrievalProvider
-from app.providers.selection_verbalizer import OpenAISelectionVerbalizerProvider
-from app.providers.stt.openai import OpenAIWhisperSTTProvider, STTProviderError
-from app.providers.tts import OpenAITTSProvider, SupertonicTTSProvider
-from app.providers.schemas import (
-    LLMSelectionResult,
-    PipelineCompleteEvent,
-    PipelineResponse,
-    PipelineStartEvent,
-    ProviderMeta,
-    RetrievalResult,
-    StageCompleteEvent,
-    StageError,
-    StageErrorEvent,
-    StageStartEvent,
-    TimingResult,
-    TTSResult,
-)
-from app.providers.timing import TimingContext, generate_request_id
 
 logger = logging.getLogger(__name__)
 
@@ -123,8 +117,8 @@ def _validate_provider_options(normalizer_provider: str | None, tts_provider: st
 def _tts_provider_for_name(provider_name: str) -> Any:
     """Resolve TTS provider."""
     if provider_name == "openai":
-        return OpenAITTSProvider()
-    return SupertonicTTSProvider()
+        return OpenAITTSProvider.get_instance()
+    return SupertonicTTSProvider.get_instance()
 
 
 def _validated_spoken_answer(spoken_answer: str, selected_answer: str) -> str:
@@ -317,7 +311,7 @@ async def _run_pipeline(
         request_id=request_id, stage="embed",
     ).model_dump())
 
-    embedding_provider = BGEEmbeddingProvider()
+    embedding_provider = BGEEmbeddingProvider.get_instance()
     try:
         with timing.stage("embedding"):
             embedding = await embedding_provider.process(normalized_query)
@@ -516,7 +510,7 @@ async def _run_pipeline(
             except Exception as primary_exc:
                 logger.warning("Primary TTS failed: %s. Trying fallback.", primary_exc)
                 if tts_provider_name != "openai":
-                    fallback_provider = OpenAITTSProvider()
+                    fallback_provider = OpenAITTSProvider.get_instance()
                     tts_data = await fallback_provider.process(
                         text=spoken_answer_text, request_id=request_id,
                     )

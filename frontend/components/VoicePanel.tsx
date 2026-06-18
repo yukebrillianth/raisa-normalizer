@@ -38,6 +38,7 @@ export function VoicePanel({
     audioBlob,
     mimeType,
     resetBlob,
+    stream,
   } = useAudioRecorder();
 
   const [submitted, setSubmitted] = useState(false);
@@ -88,6 +89,7 @@ export function VoicePanel({
         durationSeconds={durationSeconds}
         onStart={handleStart}
         onStop={handleStop}
+        stream={stream}
       />
 
       {/* Recorder error */}

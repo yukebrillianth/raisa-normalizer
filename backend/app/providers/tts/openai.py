@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import Any
 
 import openai
-
 from app.config import get_settings
 from app.providers.base import TTSProvider
 
@@ -33,6 +32,15 @@ class OpenAITTSError(RuntimeError):
 
 class OpenAITTSProvider(TTSProvider):
     """Text-to-speech using the OpenAI Audio API as a fallback."""
+
+    _instance: OpenAITTSProvider | None = None
+
+    @classmethod
+    def get_instance(cls) -> OpenAITTSProvider:
+        """Return (or create) the process-wide singleton."""
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
 
     def __init__(self) -> None:
         self.settings = get_settings()

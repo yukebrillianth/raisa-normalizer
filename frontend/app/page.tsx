@@ -28,7 +28,7 @@ export default function Home() {
         </section>
 
         {/* RIGHT — Pipeline timeline (~40%, max 400px) */}
-        <section className="w-[380px] shrink-0 border-l border-surface-3 bg-surface-0 hidden md:flex md:flex-col">
+        <section className="w-[380px] shrink-0 bg-surface-0 hidden md:flex md:flex-col">
           <PipelineTimeline
             stages={state.stages}
             latencyItems={state.latencyItems}
