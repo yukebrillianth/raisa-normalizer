@@ -1,3 +1,5 @@
+from unsloth import FastLanguageModel  # noqa: F401  # must be first to patch torch/transformers
+
 import asyncio
 import logging
 import os

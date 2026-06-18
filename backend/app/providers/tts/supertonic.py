@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-
 from app.config import get_settings
 from app.providers.base import TTSProvider
 
@@ -83,6 +82,7 @@ class SupertonicTTSProvider(TTSProvider):
                 text=text.strip(),
                 voice_style=self._voice_style,
                 total_steps=self.settings.supertonic_total_steps,
+                lang="id",
             )
         except Exception as exc:
             raise TTSSynthesisError(

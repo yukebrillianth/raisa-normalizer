@@ -7,6 +7,8 @@ Indonesian following the exact Alpaca prompt format from the training notebook.
 
 from __future__ import annotations
 
+from unsloth import FastLanguageModel
+
 import logging
 import re
 import threading
@@ -15,7 +17,6 @@ from pathlib import Path
 from typing import Any
 
 import torch
-from unsloth import FastLanguageModel
 from transformers import AutoTokenizer, BitsAndBytesConfig
 
 from app.config import get_settings
