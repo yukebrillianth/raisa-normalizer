@@ -4,9 +4,11 @@ import { PipelineTimeline } from "@/components/PipelineTimeline";
 import { RaisaHeader } from "@/components/RaisaHeader";
 import { VoicePanel } from "@/components/VoicePanel";
 import { usePipelineStream } from "@/hooks/usePipelineStream";
+import { useState } from "react";
 
 export default function Home() {
   const { state, submitAudio, reset } = usePipelineStream();
+  const [sidebarHidden, setSidebarHidden] = useState(false);
 
   return (
     <main className="flex flex-col h-[100dvh] bg-surface-1">
@@ -14,7 +16,7 @@ export default function Home() {
 
       <div className="flex-1 flex min-h-0">
         {/* LEFT — Voice interaction panel (~60%) */}
-        <section className="flex-1 overflow-y-auto scrollable flex flex-col">
+        <section className="flex-1 overflow-y-auto scrollable flex flex-col relative">
           <VoicePanel
             phase={state.phase}
             transcript={state.transcript}
@@ -25,20 +27,46 @@ export default function Home() {
             onSubmitAudio={submitAudio}
             onReset={reset}
           />
+
+          {sidebarHidden && (
+            <button
+              onClick={() => setSidebarHidden(false)}
+              className="hidden md:flex absolute top-3 right-3 z-30 items-center gap-1.5 rounded-lg bg-surface-0 border border-surface-3 px-3 py-1.5 text-xs text-text-muted hover:text-its-blue hover:border-its-blue transition-colors shadow-sm"
+              title="Show pipeline sidebar"
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <line x1="15" y1="3" x2="15" y2="21" />
+              </svg>
+              Pipeline
+            </button>
+          )}
         </section>
 
         {/* RIGHT — Pipeline timeline (~40%, max 400px) */}
-        <section className="w-[380px] shrink-0 bg-surface-0 hidden md:flex md:flex-col">
-          <PipelineTimeline
-            stages={state.stages}
-            latencyItems={state.latencyItems}
-            errors={state.errors}
-            candidates={state.candidates}
-            llmSelection={state.llmSelection}
-            phase={state.phase}
-            requestId={state.requestId}
-          />
-        </section>
+        {!sidebarHidden && (
+          <section className="w-[380px] shrink-0 bg-surface-0 hidden md:flex md:flex-col">
+            <PipelineTimeline
+              stages={state.stages}
+              latencyItems={state.latencyItems}
+              errors={state.errors}
+              candidates={state.candidates}
+              llmSelection={state.llmSelection}
+              phase={state.phase}
+              requestId={state.requestId}
+              onHide={() => setSidebarHidden(true)}
+            />
+          </section>
+        )}
       </div>
 
       {/* Mobile: Pipeline accessible via bottom sheet (simplified) */}
@@ -50,7 +78,6 @@ export default function Home() {
 /* ── Mobile pipeline toggle ─────────────────────── */
 
 import type { PipelineState } from "@/hooks/usePipelineStream";
-import { useState } from "react";
 
 function MobilePipelineToggle({ state }: { state: PipelineState }) {
   const [open, setOpen] = useState(false);

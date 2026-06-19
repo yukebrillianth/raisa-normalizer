@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { AnswerBlock } from "@/components/AnswerBlock";
 import { MicButton } from "@/components/MicButton";
 import { TranscriptBlock } from "@/components/TranscriptBlock";
-import { AnswerBlock } from "@/components/AnswerBlock";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import type { PipelinePhase } from "@/hooks/usePipelineStream";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 type VoicePanelProps = {
   phase: PipelinePhase;
@@ -14,7 +14,10 @@ type VoicePanelProps = {
   finalAnswer: string;
   spokenAnswer: string;
   audioUrl: string;
-  onSubmitAudio: (blob: Blob, mimeType: string) => Promise<{ error: string | null }>;
+  onSubmitAudio: (
+    blob: Blob,
+    mimeType: string,
+  ) => Promise<{ error: string | null }>;
   onReset: () => void;
 };
 
@@ -53,7 +56,8 @@ export function VoicePanel({
 
     // Play/unlock audio context inside user gesture
     if (audioRef.current) {
-      audioRef.current.play()
+      audioRef.current
+        .play()
         .then(() => {
           audioRef.current?.pause();
         })
@@ -72,7 +76,8 @@ export function VoicePanel({
 
     // Play/unlock audio context inside user gesture
     if (audioRef.current) {
-      audioRef.current.play()
+      audioRef.current
+        .play()
         .then(() => {
           audioRef.current?.pause();
         })
@@ -91,7 +96,7 @@ export function VoicePanel({
   }, [audioBlob, submitted, isRecording, onSubmitAudio, mimeType]);
 
   return (
-    <div className="flex flex-col items-center gap-6 py-8 px-4">
+    <div className="flex flex-col items-center gap-6 py-8 px-4 my-auto">
       {/* Robot greeting — shown only in idle state */}
       {phase === "idle" && !hasTranscript && (
         <div className="text-center animate-fade-in mb-2">

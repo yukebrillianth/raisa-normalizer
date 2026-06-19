@@ -29,6 +29,7 @@ type PipelineTimelineProps = {
   } | null;
   phase: PipelinePhase;
   requestId: string | null;
+  onHide?: () => void;
 };
 
 export function PipelineTimeline({
@@ -39,6 +40,7 @@ export function PipelineTimeline({
   llmSelection,
   phase,
   requestId,
+  onHide,
 }: PipelineTimelineProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -80,10 +82,7 @@ export function PipelineTimeline({
   return (
     <aside className="raisa-card overflow-hidden flex flex-col h-full">
       {/* Header */}
-      <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="flex items-center justify-between w-full px-4 py-3 border-b border-surface-3 text-left hover:bg-surface-1 transition-colors"
-      >
+      <button className="flex items-center justify-between w-full px-4 py-3 border-b border-surface-3 text-left">
         <div className="flex items-center gap-2">
           <svg
             width="14"
@@ -102,18 +101,27 @@ export function PipelineTimeline({
         </div>
         <div className="flex items-center gap-2">
           <span className={`text-[11px] ${phaseColor}`}>{phaseLabel}</span>
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="var(--text-muted)"
-            strokeWidth="2"
-            strokeLinecap="round"
-            className={`transition-transform duration-200 ${isCollapsed ? "-rotate-90" : "rotate-0"}`}
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
+          {onHide && (
+            <button
+              onClick={onHide}
+              className="p-1 rounded hover:bg-surface-2 transition-colors text-text-muted hover:text-text-primary"
+              title="Hide pipeline sidebar"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          )}
         </div>
       </button>
 
