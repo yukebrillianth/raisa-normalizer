@@ -83,7 +83,7 @@ class AlpacaNormalizerProvider(NormalizerProvider):
     def __init__(self) -> None:
         self._model_loaded = False
         self._adapter_loaded = False
-        self._device: str = "cpu"
+        self._device: str = "cuda"
         self._model: Any = None
         self._tokenizer: AutoTokenizer | None = None
 
@@ -135,7 +135,7 @@ class AlpacaNormalizerProvider(NormalizerProvider):
                 dtype=None,
                 load_in_4bit=False,
                 load_in_8bit=True,
-                quantization_config=quantization_config,
+                # quantization_config=quantization_config,
                 trust_remote_code=True,
                 low_cpu_mem_usage=True,
                 attn_implementation="sdpa",
@@ -149,6 +149,7 @@ class AlpacaNormalizerProvider(NormalizerProvider):
                 from peft import PeftModel  # type: ignore[import-untyped]
 
                 logger.info("Loading LoRA adapter from %s", self._lora_path)
+                print("Loading LoRA adapter from", self._lora_path)
                 self._model = PeftModel.from_pretrained(self._model, self._lora_path)
                 self._adapter_loaded = True
             elif self._lora_path:

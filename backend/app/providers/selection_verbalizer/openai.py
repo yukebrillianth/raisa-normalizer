@@ -7,19 +7,24 @@ import logging
 import time
 from typing import Any
 
-from openai import AsyncOpenAI
-
 from app.config import get_settings
 from app.providers.base import SelectionVerbalizerProvider
+from openai import AsyncOpenAI
 
 logger = logging.getLogger(__name__)
 
-ITS_SYSTEM_MESSAGE = """Anda adalah asisten suara Kampus Institut Teknologi Sepuluh Nopember (ITS).
-Berdasarkan pertanyaan pengguna, pilih jawaban terbaik dari kandidat yang diberikan,
-lalu ubah menjadi kalimat lisan yang alami, ramah, dan mudah diucapkan."""
+ITS_SYSTEM_MESSAGE = """Anda adalah sistem asisten suara Kampus Institut Teknologi Sepuluh Nopember (ITS).
+Tugas Anda adalah memilih jawaban terbaik dari kandidat yang diberikan berdasarkan pertanyaan pengguna, lalu mengubah jawaban formal tersebut menjadi kalimat lisan (spoken answer) yang alami, ramah, mudah diucapkan, dan langsung ke inti dalam Bahasa Indonesia baku yang percakapan.
 
-PROMPT_TEMPLATE = """Pertanyaan mentah: {raw_transcript}
-Pertanyaan normal: {normalized_query}
+Aturan:
+1. Analisis transkrip mentah (raw transcript), query yang sudah dinormalisasi (normalized query), dan daftar top-3 kandidat jawaban.
+2. Pilih salah satu kandidat yang paling sesuai (selected_rank dari 1 sampai 3). Jika tidak ada kandidat yang relevan atau semuanya salah, set `refused` menjadi true.
+3. Untuk kandidat terpilih:
+   - Gunakan jawaban asli untuk `selected_answer`. Jangan mengarang isi baru!
+   - Tulis ulang jawaban tersebut untuk `spoken_answer` agar terdengar alami saat diucapkan (lisan). Jaga agar singkat (1-3 kalimat), ramah, tanpa simbol aneh/markup, mudah didengar."""
+
+PROMPT_TEMPLATE = """Pertanyaan mentah hasil transkripsi: {raw_transcript}
+Pertanyaan hasil normalisasi model: {normalized_query}
 
 Kandidat jawaban:
 {candidates_text}
@@ -28,9 +33,9 @@ Berikan output dalam JSON:
 {{"selected_rank": <1-3 atau null>, "selected_question": "<pertanyaan kandidat terpilih atau kosong>", "selected_answer": "<jawaban kandidat terpilih atau kosong>", "spoken_answer": "<jawaban natural>", "reason": "<alasan memilih>", "refused": <true/false>, "refusal_reason": "<alasan menolak jika refused>"}}
 
 Aturan:
-- Pilih kandidat PALING sesuai dengan pertanyaan
+- Pilih kandidat PALING sesuai dengan pertanyaan pengguna
 - spoken_answer harus kalimat lisan alami, bukan copy-paste formal
-- Jangan mengarang fakta baru di luar jawaban kandidat
+- Jangan mengarang fakta baru di luar jawaban kandidat dan jangan mengurangi informasi daru jawaban kandidat
 - Jika semua kandidat tidak relevan, set refused=true dan selected_rank=null
 - Output hanya JSON valid, tanpa markdown atau penjelasan tambahan"""
 
@@ -38,7 +43,7 @@ Aturan:
 class OpenAISelectionVerbalizerProvider(SelectionVerbalizerProvider):
     """Select the best retrieved answer and verbalize it using GPT-4.1-mini."""
 
-    model = "gpt-4.1-mini"
+    model = "gpt-5.4-nano"
 
     def __init__(self) -> None:
         self.settings = get_settings()
