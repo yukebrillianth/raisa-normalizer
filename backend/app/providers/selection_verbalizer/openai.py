@@ -7,9 +7,9 @@ import logging
 import time
 from typing import Any
 
+import openai
 from app.config import get_settings
 from app.providers.base import SelectionVerbalizerProvider
-from openai import AsyncOpenAI
 
 logger = logging.getLogger(__name__)
 
@@ -17,9 +17,10 @@ ITS_SYSTEM_MESSAGE = """Anda adalah sistem asisten suara Kampus Institut Teknolo
 Tugas Anda adalah memilih jawaban terbaik dari kandidat yang diberikan berdasarkan pertanyaan pengguna, lalu mengubah jawaban formal tersebut menjadi kalimat lisan (spoken answer) yang alami, ramah, mudah diucapkan, dan langsung ke inti dalam Bahasa Indonesia baku yang percakapan.
 
 Aturan:
-1. Analisis transkrip mentah (raw transcript), query yang sudah dinormalisasi (normalized query), dan daftar top-3 kandidat jawaban.
-2. Pilih salah satu kandidat yang paling sesuai (selected_rank dari 1 sampai 3). Jika tidak ada kandidat yang relevan atau semuanya salah, set `refused` menjadi true.
-3. Untuk kandidat terpilih:
+1. Analisis transkrip mentah (raw transcript), query yang sudah dinormalisasi (normalized query), dan seluruh kandidat jawaban yang diberikan.
+2. Pilih kandidat yang paling sesuai dengan MAKSUD pertanyaan, bukan sekadar skor similarity tertinggi. Jika tidak ada kandidat yang relevan atau semuanya salah, set `refused` menjadi true.
+3. Cocokkan tipe pertanyaan: `siapa/siapa nama` harus memilih jawaban nama orang/pihak; jangan pilih kandidat definisi/peran/tugas jika ada kandidat nama yang sesuai. `berapa` harus memilih jumlah/angka, `kapan` waktu/tanggal, `di mana/dimana` lokasi, `bagaimana/cara` prosedur, dan `apa/apa itu` definisi.
+4. Untuk kandidat terpilih:
    - Gunakan jawaban asli untuk `selected_answer`. Jangan mengarang isi baru!
    - Tulis ulang jawaban tersebut untuk `spoken_answer` agar terdengar alami saat diucapkan (lisan). Jaga agar singkat (1-3 kalimat), ramah, tanpa simbol aneh/markup, mudah didengar."""
 
@@ -30,10 +31,11 @@ Kandidat jawaban:
 {candidates_text}
 
 Berikan output dalam JSON:
-{{"selected_rank": <1-3 atau null>, "selected_question": "<pertanyaan kandidat terpilih atau kosong>", "selected_answer": "<jawaban kandidat terpilih atau kosong>", "spoken_answer": "<jawaban natural>", "reason": "<alasan memilih>", "refused": <true/false>, "refusal_reason": "<alasan menolak jika refused>"}}
+{{"selected_rank": <nomor kandidat atau null>, "selected_question": "<pertanyaan kandidat terpilih atau kosong>", "selected_answer": "<jawaban kandidat terpilih atau kosong>", "spoken_answer": "<jawaban natural>", "reason": "<alasan memilih>", "refused": <true/false>, "refusal_reason": "<alasan menolak jika refused>"}}
 
 Aturan:
 - Pilih kandidat PALING sesuai dengan pertanyaan pengguna
+- Jangan otomatis memilih rank #1. Jika query bertanya "siapa/nama", kandidat berisi nama orang yang tepat lebih baik daripada kandidat yang hanya menjelaskan peran/definisi.
 - spoken_answer harus kalimat lisan alami, bukan copy-paste formal
 - Jangan mengarang fakta baru di luar jawaban kandidat dan jangan mengurangi informasi daru jawaban kandidat
 - Jika semua kandidat tidak relevan, set refused=true dan selected_rank=null
@@ -55,7 +57,7 @@ class OpenAISelectionVerbalizerProvider(SelectionVerbalizerProvider):
         candidates: list[dict[str, Any]],
         raw_transcript: str = "",
     ) -> dict[str, Any]:
-        """Select the best top-3 QA candidate and rephrase it for spoken output."""
+        """Select the best QA candidate and rephrase it for spoken output."""
         if not self.enabled:
             logger.info("OpenAI verbalization is disabled. Returning top candidate fallback.")
             return self._build_fallback_response(candidates, "Verbalization disabled")
@@ -64,7 +66,7 @@ class OpenAISelectionVerbalizerProvider(SelectionVerbalizerProvider):
             logger.warning("OpenAI API key is not configured. Returning top candidate fallback.")
             return self._build_fallback_response(candidates, "OpenAI API key is not configured")
 
-        top_candidates = candidates[:3]
+        top_candidates = candidates[: self.settings.selection_candidate_k]
         if not top_candidates:
             return self._build_no_candidate_response("No candidates available")
 
@@ -76,7 +78,7 @@ class OpenAISelectionVerbalizerProvider(SelectionVerbalizerProvider):
 
         started_at = time.perf_counter()
         try:
-            client = AsyncOpenAI(api_key=self.settings.openai_api_key)
+            client = openai.AsyncOpenAI(api_key=self.settings.openai_api_key)  # pyright: ignore[reportAttributeAccessIssue]
             response = await client.chat.completions.create(
                 model=self.model,
                 messages=[
@@ -174,7 +176,7 @@ class OpenAISelectionVerbalizerProvider(SelectionVerbalizerProvider):
             rank = int(value)
         except (TypeError, ValueError):
             return None
-        return rank if 1 <= rank <= min(candidate_count, 3) else None
+        return rank if 1 <= rank <= candidate_count else None
 
     @staticmethod
     def _coerce_float(value: Any) -> float:

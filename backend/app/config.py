@@ -35,8 +35,15 @@ class Settings(BaseSettings):
     verbalizer_enabled: bool = Field(True, alias="VERBALIZER_ENABLED")
 
     retrieval_top_k: int = Field(3, alias="RETRIEVAL_TOP_K")
+    retrieval_candidate_k: int = Field(8, alias="RETRIEVAL_CANDIDATE_K")
+    retrieval_bm25_k: int = Field(3, alias="RETRIEVAL_BM25_K")
+    retrieval_rrf_k: int = Field(60, alias="RETRIEVAL_RRF_K")
+    retrieval_intent_prior_enabled: bool = Field(True, alias="RETRIEVAL_INTENT_PRIOR_ENABLED")
+    retrieval_name_intent_boost: float = Field(0.004, alias="RETRIEVAL_NAME_INTENT_BOOST")
+    retrieval_name_intent_penalty: float = Field(0.003, alias="RETRIEVAL_NAME_INTENT_PENALTY")
     retrieval_similarity_threshold: float = Field(0.75, alias="RETRIEVAL_SIMILARITY_THRESHOLD")
     rerank_keyword_weight: float = Field(0.2, alias="RERANK_KEYWORD_WEIGHT")
+    selection_candidate_k: int = Field(8, alias="SELECTION_CANDIDATE_K")
     fallback_answer: str = Field(
         "Maaf, saya belum dapat menemukan jawaban yang sesuai untuk pertanyaan Anda.",
         alias="FALLBACK_ANSWER",

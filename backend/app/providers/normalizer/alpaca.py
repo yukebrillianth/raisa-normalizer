@@ -135,7 +135,7 @@ class AlpacaNormalizerProvider(NormalizerProvider):
                 dtype=None,
                 load_in_4bit=False,
                 load_in_8bit=True,
-                # quantization_config=quantization_config,
+                quantization_config=quantization_config,
                 trust_remote_code=True,
                 low_cpu_mem_usage=True,
                 attn_implementation="sdpa",

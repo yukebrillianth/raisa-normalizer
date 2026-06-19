@@ -3,13 +3,13 @@ import io
 import logging
 
 import psycopg2
+from app.config import get_settings
+from app.db import Database, get_db
+from app.providers.retrieval.retriever import PgvectorRetrievalProvider
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
 from sentence_transformers import SentenceTransformer
-
-from app.config import get_settings
-from app.db import Database, get_db
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +47,10 @@ class RegenerateResult(BaseModel):
 
 
 _embedding_model: SentenceTransformer | None = None
+
+
+def _invalidate_retrieval_index() -> None:
+    PgvectorRetrievalProvider.invalidate_bm25_index()
 
 
 def _get_embedding_model() -> SentenceTransformer:
@@ -218,6 +222,8 @@ async def create_qa(
     finally:
         conn.close()
 
+    _invalidate_retrieval_index()
+
     assert row is not None
     r = _dict_row(db.schema.columns, row)
     return {
@@ -303,6 +309,8 @@ async def update_qa(
     finally:
         conn.close()
 
+    _invalidate_retrieval_index()
+
     return {
         "id": identifier,
         "question": new_question if new_question else str(existing.get("question", "")),
@@ -350,6 +358,8 @@ async def delete_qa(
         raise HTTPException(status_code=500, detail="Failed to delete row")
     finally:
         conn.close()
+
+    _invalidate_retrieval_index()
 
     return {"detail": "Deleted", "id": identifier}
 
@@ -431,6 +441,9 @@ async def import_csv(
         raise HTTPException(status_code=500, detail="Import failed")
     finally:
         conn.close()
+
+    if result.imported:
+        _invalidate_retrieval_index()
 
     return result.model_dump()
 

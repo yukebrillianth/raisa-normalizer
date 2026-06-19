@@ -386,9 +386,9 @@ async def _run_pipeline(
         request_id=request_id, stage="baseline_rerank",
     ).model_dump())
 
-    if not _has_passed_threshold(candidates_list, threshold):
-        logger.info("Threshold gate: no candidate passes similarity threshold (%.2f). Using fallback.", threshold)
-        # Skipping LLM selection — all candidates below threshold
+    if not retrieval_result.answered:
+        logger.info("Threshold gate: RRF top-1 candidate is below similarity threshold (%.2f). Using fallback.", threshold)
+        # Skipping LLM selection — selected RRF top-1 is below threshold
         await _emit(queue, "stage_complete", StageCompleteEvent(
             request_id=request_id, stage="baseline_rerank",
             data={"threshold_gate": "SKIPPED", "reason": "all_below_threshold"},

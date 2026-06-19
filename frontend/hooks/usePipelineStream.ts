@@ -1,6 +1,5 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   LatencyItem,
   PipelineError,
@@ -8,8 +7,14 @@ import type {
   RetrievalCandidate,
   StageStatus,
 } from "@/components/types";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-export type PipelinePhase = "idle" | "uploading" | "streaming" | "done" | "error";
+export type PipelinePhase =
+  | "idle"
+  | "uploading"
+  | "streaming"
+  | "done"
+  | "error";
 
 type StageMeta = {
   id: string;
@@ -23,14 +28,16 @@ const STAGE_META: StageMeta[] = [
   {
     id: "stt",
     name: "1. Speech-to-Text",
-    description: "Mengubah ujaran pengguna menjadi teks mentah untuk analisis berikutnya.",
+    description:
+      "Mengubah ujaran pengguna menjadi teks mentah untuk analisis berikutnya.",
     provider: "OpenAI Whisper",
     testId: "stage-stt",
   },
   {
     id: "normalize",
     name: "2. Normalisasi Query",
-    description: "Membersihkan filler, memperbaiki istilah, dan menyusun query formal bahasa Indonesia.",
+    description:
+      "Membersihkan filler, memperbaiki istilah, dan menyusun query formal bahasa Indonesia.",
     provider: "LoRA LLM",
     testId: "stage-normalize",
   },
@@ -44,21 +51,24 @@ const STAGE_META: StageMeta[] = [
   {
     id: "retrieve",
     name: "4. Retrieval Kandidat",
-    description: "Mengambil kandidat FAQ/dokumen menggunakan skor similarity dan pencocokan kata kunci.",
+    description:
+      "Mengambil kandidat FAQ/dokumen menggunakan skor similarity dan pencocokan kata kunci.",
     provider: "pgvector",
     testId: "stage-retrieve",
   },
   {
     id: "baseline_rerank",
     name: "5. Reranking Baseline",
-    description: "Mengurutkan ulang kandidat berdasarkan rerank skor hybrid sebelum LLM dipilih.",
+    description:
+      "Mengurutkan ulang kandidat berdasarkan rerank skor hybrid sebelum LLM dipilih.",
     provider: "Hybrid scorer",
     testId: "stage-baseline-rerank",
   },
   {
     id: "select_and_verbalize",
     name: "6. Seleksi & Verbalization",
-    description: "Memilih jawaban final lalu mengubahnya menjadi tuturan yang ringkas dan natural.",
+    description:
+      "Memilih jawaban final lalu mengubahnya menjadi tuturan yang ringkas dan natural.",
     provider: "LoRA LLM",
     testId: "stage-select-verbalize",
   },
@@ -71,7 +81,9 @@ const STAGE_META: StageMeta[] = [
   },
 ];
 
-const STAGE_META_BY_ID = Object.fromEntries(STAGE_META.map((stage) => [stage.id, stage])) as Record<string, StageMeta>;
+const STAGE_META_BY_ID = Object.fromEntries(
+  STAGE_META.map((stage) => [stage.id, stage]),
+) as Record<string, StageMeta>;
 
 const LATENCY_LABELS: Record<string, string> = {
   stt: "STT",
@@ -185,7 +197,10 @@ type PipelineActionResult = {
 
 export type UsePipelineStreamReturn = {
   state: PipelineState;
-  submitAudio: (audioBlob: Blob, mimeType: string) => Promise<PipelineActionResult>;
+  submitAudio: (
+    audioBlob: Blob,
+    mimeType: string,
+  ) => Promise<PipelineActionResult>;
   reset: () => void;
 };
 
@@ -267,21 +282,25 @@ function applyStageUpdate(
   return { ...state, stages };
 }
 
-function applyPipelineStart(state: PipelineState, data: SseEventData): PipelineState {
+function applyPipelineStart(
+  state: PipelineState,
+  data: SseEventData,
+): PipelineState {
   const stages = STAGE_META.map((meta) => ({
     id: meta.id,
     name: meta.name,
     description: meta.description,
     status: "pending" as StageStatus,
-      testId: meta.testId,
-      provider: meta.provider,
-      detail: "Menunggu event pipeline.",
-    }));
+    testId: meta.testId,
+    provider: meta.provider,
+    detail: "Menunggu event pipeline.",
+  }));
   return {
     ...initialState,
     ...state,
     phase: "streaming",
-    requestId: typeof data.request_id === "string" ? data.request_id : state.requestId,
+    requestId:
+      typeof data.request_id === "string" ? data.request_id : state.requestId,
     stages,
     errors: [],
     latencyItems: [],
@@ -298,7 +317,10 @@ function applyPipelineStart(state: PipelineState, data: SseEventData): PipelineS
   };
 }
 
-function applyStageStart(state: PipelineState, data: SseEventData): PipelineState {
+function applyStageStart(
+  state: PipelineState,
+  data: SseEventData,
+): PipelineState {
   const stageId = typeof data.stage === "string" ? data.stage : "";
   if (!stageId) return state;
   const meta = STAGE_META_BY_ID[stageId];
@@ -310,17 +332,23 @@ function applyStageStart(state: PipelineState, data: SseEventData): PipelineStat
   });
 }
 
-function applyStageComplete(state: PipelineState, data: SseEventData): PipelineState {
+function applyStageComplete(
+  state: PipelineState,
+  data: SseEventData,
+): PipelineState {
   const stageId = typeof data.stage === "string" ? data.stage : "";
   if (!stageId) return state;
   const payload = (data.data ?? {}) as Record<string, unknown>;
-  const stageLatencyMs = typeof payload.latency_ms === "number" ? payload.latency_ms : undefined;
+  const stageLatencyMs =
+    typeof payload.latency_ms === "number" ? payload.latency_ms : undefined;
   let nextState = state;
 
   switch (stageId) {
     case "stt": {
-      const transcript = typeof payload.transcript === "string" ? payload.transcript : "";
-      const language = typeof payload.language === "string" ? payload.language : null;
+      const transcript =
+        typeof payload.transcript === "string" ? payload.transcript : "";
+      const language =
+        typeof payload.language === "string" ? payload.language : null;
       nextState = {
         ...nextState,
         transcript,
@@ -340,11 +368,15 @@ function applyStageComplete(state: PipelineState, data: SseEventData): PipelineS
       break;
     }
     case "normalize": {
-      const normalizedQuery = typeof payload.normalized_query === "string" ? payload.normalized_query : "";
+      const normalizedQuery =
+        typeof payload.normalized_query === "string"
+          ? payload.normalized_query
+          : "";
       const provider =
         typeof payload.provider === "string"
           ? payload.provider
-          : nextState.providerInfo.provider ?? STAGE_META_BY_ID[stageId]?.provider;
+          : (nextState.providerInfo.provider ??
+            STAGE_META_BY_ID[stageId]?.provider);
       nextState = {
         ...nextState,
         normalizedQuery,
@@ -358,12 +390,17 @@ function applyStageComplete(state: PipelineState, data: SseEventData): PipelineS
         status: "complete",
         provider,
         latencyMs: stageLatencyMs,
-        detail: normalizedQuery ? `Query: ${normalizedQuery}` : "Normalisasi gagal, menggunakan transkrip mentah.",
+        detail: normalizedQuery
+          ? `Query: ${normalizedQuery}`
+          : "Normalisasi gagal, menggunakan transkrip mentah.",
       });
       break;
     }
     case "embed": {
-      const embeddingDim = typeof payload.embedding_dim === "number" ? payload.embedding_dim : null;
+      const embeddingDim =
+        typeof payload.embedding_dim === "number"
+          ? payload.embedding_dim
+          : null;
       nextState = {
         ...nextState,
         providerInfo: {
@@ -376,29 +413,34 @@ function applyStageComplete(state: PipelineState, data: SseEventData): PipelineS
         status: "complete",
         provider: embeddingDim ? `bge-m3 / ${embeddingDim}d` : "bge-m3",
         latencyMs: stageLatencyMs,
-        detail: embeddingDim ? `Embedding dimensi: ${embeddingDim}` : "Embedding selesai tanpa metadata dimensi.",
+        detail: embeddingDim
+          ? `Embedding dimensi: ${embeddingDim}`
+          : "Embedding selesai tanpa metadata dimensi.",
       });
       break;
     }
     case "retrieve": {
       const candidates = Array.isArray(payload.candidates)
-        ? (payload.candidates as Array<Record<string, any>>).map((candidate, index) => ({
-            rank: index + 1,
-            question: String(candidate.question ?? ""),
-            answer: String(candidate.answer ?? ""),
-            similarity: Number(candidate.similarity ?? 0),
-            keyword_score: Number(candidate.keyword_score ?? 0),
-            rerank_score: Number(candidate.rerank_score ?? 0),
-          }))
+        ? (payload.candidates as Array<Record<string, any>>).map(
+            (candidate, index) => ({
+              rank: index + 1,
+              question: String(candidate.question ?? ""),
+              answer: String(candidate.answer ?? ""),
+              similarity: Number(candidate.similarity ?? 0),
+              keyword_score: Number(candidate.keyword_score ?? 0),
+              rerank_score: Number(candidate.rerank_score ?? 0),
+            }),
+          )
         : [];
       nextState = { ...nextState, candidates };
       nextState = applyStageUpdate(nextState, stageId, {
         status: "complete",
         provider: "pgvector + keyword",
         latencyMs: stageLatencyMs,
-        detail: candidates.length > 0
-          ? `Top-${candidates.length} kandidat ditemukan dengan skor rerank hybrid.`
-          : "Tidak ada kandidat yang dikembalikan oleh retrieval.",
+        detail:
+          candidates.length > 0
+            ? `Top-${candidates.length} kandidat ditemukan dengan skor rerank hybrid.`
+            : "Tidak ada kandidat yang dikembalikan oleh retrieval.",
       });
       break;
     }
@@ -409,10 +451,14 @@ function applyStageComplete(state: PipelineState, data: SseEventData): PipelineS
           status: "complete",
           provider: "threshold gate",
           latencyMs: stageLatencyMs,
-          detail: "Threshold gate: semua kandidat di bawah ambang similarity, LLM dilewati.",
+          detail:
+            "Threshold gate: semua kandidat di bawah ambang similarity, LLM dilewati.",
         });
       } else {
-        const selected = payload.selected as BaselineRerankData | null | undefined;
+        const selected = payload.selected as
+          | BaselineRerankData
+          | null
+          | undefined;
         nextState = { ...nextState, baselineSelected: selected ?? null };
         nextState = applyStageUpdate(nextState, stageId, {
           status: "complete",
@@ -420,7 +466,9 @@ function applyStageComplete(state: PipelineState, data: SseEventData): PipelineS
           latencyMs: stageLatencyMs,
           detail: selected
             ? `Baseline rerank memilih kandidat dengan rerank_score=${
-                typeof selected.rerank_score === "number" ? selected.rerank_score.toFixed(3) : "?"
+                typeof selected.rerank_score === "number"
+                  ? selected.rerank_score.toFixed(3)
+                  : "?"
               }.`
             : "Baseline rerank selesai tanpa kandidat terpilih.",
         });
@@ -434,7 +482,8 @@ function applyStageComplete(state: PipelineState, data: SseEventData): PipelineS
           llmSelection: {
             provider: "-",
             selected_rank: null,
-            reason: "Threshold gate dilewati karena tidak ada kandidat yang lolos ambang similarity.",
+            reason:
+              "Threshold gate dilewati karena tidak ada kandidat yang lolos ambang similarity.",
             fallback_used: true,
             refused: true,
           },
@@ -447,21 +496,46 @@ function applyStageComplete(state: PipelineState, data: SseEventData): PipelineS
         });
       } else {
         const llmSelection: LLMSelectionData = {
-          provider: typeof payload.provider === "string" ? payload.provider : undefined,
-          selected_rank: typeof payload.selected_rank === "number" ? payload.selected_rank : null,
-          selected_question: typeof payload.selected_question === "string" ? payload.selected_question : undefined,
-          selected_answer: typeof payload.selected_answer === "string" ? payload.selected_answer : undefined,
-          spoken_answer: typeof payload.spoken_answer === "string" ? payload.spoken_answer : undefined,
-          reason: typeof payload.reason === "string" ? payload.reason : undefined,
-          latency_ms: typeof payload.latency_ms === "number" ? payload.latency_ms : undefined,
-          fallback_used: typeof payload.fallback_used === "boolean" ? payload.fallback_used : undefined,
-          refused: typeof payload.refused === "boolean" ? payload.refused : undefined,
-          refusal_reason: typeof payload.refusal_reason === "string" ? payload.refusal_reason : undefined,
+          provider:
+            typeof payload.provider === "string" ? payload.provider : undefined,
+          selected_rank:
+            typeof payload.selected_rank === "number"
+              ? payload.selected_rank
+              : null,
+          selected_question:
+            typeof payload.selected_question === "string"
+              ? payload.selected_question
+              : undefined,
+          selected_answer:
+            typeof payload.selected_answer === "string"
+              ? payload.selected_answer
+              : undefined,
+          spoken_answer:
+            typeof payload.spoken_answer === "string"
+              ? payload.spoken_answer
+              : undefined,
+          reason:
+            typeof payload.reason === "string" ? payload.reason : undefined,
+          latency_ms:
+            typeof payload.latency_ms === "number"
+              ? payload.latency_ms
+              : undefined,
+          fallback_used:
+            typeof payload.fallback_used === "boolean"
+              ? payload.fallback_used
+              : undefined,
+          refused:
+            typeof payload.refused === "boolean" ? payload.refused : undefined,
+          refusal_reason:
+            typeof payload.refusal_reason === "string"
+              ? payload.refusal_reason
+              : undefined,
         };
         nextState = { ...nextState, llmSelection };
         nextState = applyStageUpdate(nextState, stageId, {
           status: "complete",
-          provider: llmSelection.provider ?? STAGE_META_BY_ID[stageId]?.provider,
+          provider:
+            llmSelection.provider ?? STAGE_META_BY_ID[stageId]?.provider,
           latencyMs: stageLatencyMs ?? llmSelection.latency_ms,
           detail: llmSelection.refused
             ? `LLM menolak memilih: ${llmSelection.refusal_reason || "tanpa alasan"}`
@@ -472,20 +546,30 @@ function applyStageComplete(state: PipelineState, data: SseEventData): PipelineS
     }
     case "tts": {
       const tts: TTSData = {
-        provider: typeof payload.provider === "string" ? payload.provider : undefined,
-        fallback_used: typeof payload.fallback_used === "boolean" ? payload.fallback_used : undefined,
-        audio_url: typeof payload.audio_url === "string" ? payload.audio_url : undefined,
-        latency_ms: typeof payload.latency_ms === "number" ? payload.latency_ms : undefined,
+        provider:
+          typeof payload.provider === "string" ? payload.provider : undefined,
+        fallback_used:
+          typeof payload.fallback_used === "boolean"
+            ? payload.fallback_used
+            : undefined,
+        audio_url:
+          typeof payload.audio_url === "string" ? payload.audio_url : undefined,
+        latency_ms:
+          typeof payload.latency_ms === "number"
+            ? payload.latency_ms
+            : undefined,
       };
-      const audioUrl = tts.audio_url && tts.audio_url.length > 0
-        ? `${getBackendUrl()}${tts.audio_url.startsWith("/") ? "" : "/"}${tts.audio_url}`
-        : "";
+      const audioUrl =
+        tts.audio_url && tts.audio_url.length > 0
+          ? `${getBackendUrl()}${tts.audio_url.startsWith("/") ? "" : "/"}${tts.audio_url}`
+          : "";
       nextState = {
         ...nextState,
         audioUrl,
         ttsProvider: tts.provider ?? "-",
         ttsFallbackUsed: tts.fallback_used ?? false,
-        ttsLatencyMs: typeof tts.latency_ms === "number" ? tts.latency_ms : null,
+        ttsLatencyMs:
+          typeof tts.latency_ms === "number" ? tts.latency_ms : null,
       };
       nextState = applyStageUpdate(nextState, stageId, {
         status: "complete",
@@ -510,7 +594,10 @@ function applyStageComplete(state: PipelineState, data: SseEventData): PipelineS
   return nextState;
 }
 
-function applyStageError(state: PipelineState, data: SseEventData): PipelineState {
+function applyStageError(
+  state: PipelineState,
+  data: SseEventData,
+): PipelineState {
   const stageId = typeof data.stage === "string" ? data.stage : "pipeline";
   const recoverable = data.recoverable !== false;
   const error: PipelineError = {
@@ -531,23 +618,42 @@ function applyStageError(state: PipelineState, data: SseEventData): PipelineStat
   return nextState;
 }
 
-function applyPipelineComplete(state: PipelineState, data: SseEventData): PipelineState {
-  const response = (data.response ?? data.final_response ?? {}) as FinalResponse;
+function applyPipelineComplete(
+  state: PipelineState,
+  data: SseEventData,
+): PipelineState {
+  const response = (data.response ??
+    data.final_response ??
+    {}) as FinalResponse;
   const timing = response.timing ?? {};
   const latencyItems: LatencyItem[] = [
     { label: LATENCY_LABELS.stt, ms: Number(timing.stt_ms ?? 0) },
-    { label: LATENCY_LABELS.normalization, ms: Number(timing.normalization_ms ?? 0) },
+    {
+      label: LATENCY_LABELS.normalization,
+      ms: Number(timing.normalization_ms ?? 0),
+    },
     { label: LATENCY_LABELS.embedding, ms: Number(timing.embedding_ms ?? 0) },
     { label: LATENCY_LABELS.retrieval, ms: Number(timing.retrieval_ms ?? 0) },
-    { label: LATENCY_LABELS.llm_selection, ms: Number(timing.llm_selection_ms ?? 0) },
+    {
+      label: LATENCY_LABELS.llm_selection,
+      ms: Number(timing.llm_selection_ms ?? 0),
+    },
     { label: LATENCY_LABELS.tts, ms: Number(timing.tts_ms ?? 0) },
   ];
   const stageLatencyById: Record<string, number | undefined> = {
     stt: typeof timing.stt_ms === "number" ? timing.stt_ms : undefined,
-    normalize: typeof timing.normalization_ms === "number" ? timing.normalization_ms : undefined,
-    embed: typeof timing.embedding_ms === "number" ? timing.embedding_ms : undefined,
-    retrieve: typeof timing.retrieval_ms === "number" ? timing.retrieval_ms : undefined,
-    select_and_verbalize: typeof timing.llm_selection_ms === "number" ? timing.llm_selection_ms : undefined,
+    normalize:
+      typeof timing.normalization_ms === "number"
+        ? timing.normalization_ms
+        : undefined,
+    embed:
+      typeof timing.embedding_ms === "number" ? timing.embedding_ms : undefined,
+    retrieve:
+      typeof timing.retrieval_ms === "number" ? timing.retrieval_ms : undefined,
+    select_and_verbalize:
+      typeof timing.llm_selection_ms === "number"
+        ? timing.llm_selection_ms
+        : undefined,
     tts: typeof timing.tts_ms === "number" ? timing.tts_ms : undefined,
   };
 
@@ -571,7 +677,21 @@ function applyPipelineComplete(state: PipelineState, data: SseEventData): Pipeli
       }))
     : state.candidates;
 
-  const llmSelection: LLMSelectionData | null = response.llm_selection ?? state.llmSelection;
+  const llmSelection: LLMSelectionData | null =
+    response.llm_selection ??
+    state.llmSelection ??
+    (response.answer || response.spoken_answer
+      ? {
+          provider: "pipeline_complete",
+          selected_rank: null,
+          selected_answer: response.answer,
+          spoken_answer: response.spoken_answer,
+          reason:
+            "Jawaban final tersedia, tetapi metadata seleksi LLM tidak ditemukan di final_response.",
+          fallback_used: true,
+          refused: false,
+        }
+      : null);
   const tts: TTSData | null = response.tts ?? null;
   const audioUrl = tts?.audio_url
     ? `${getBackendUrl()}${tts.audio_url.startsWith("/") ? "" : "/"}${tts.audio_url}`
@@ -596,14 +716,16 @@ function applyPipelineComplete(state: PipelineState, data: SseEventData): Pipeli
     normalizedQuery: response.normalized_query ?? state.normalizedQuery,
     providerInfo,
     candidates,
-    baselineSelected: response.retrieval?.baseline_rerank_selected ?? state.baselineSelected,
+    baselineSelected:
+      response.retrieval?.baseline_rerank_selected ?? state.baselineSelected,
     llmSelection,
     finalAnswer: response.answer ?? state.finalAnswer,
     spokenAnswer: response.spoken_answer ?? state.spokenAnswer,
     audioUrl,
     ttsProvider: tts?.provider ?? state.ttsProvider,
     ttsFallbackUsed: tts?.fallback_used ?? state.ttsFallbackUsed,
-    ttsLatencyMs: typeof tts?.latency_ms === "number" ? tts.latency_ms : state.ttsLatencyMs,
+    ttsLatencyMs:
+      typeof tts?.latency_ms === "number" ? tts.latency_ms : state.ttsLatencyMs,
     latencyItems,
     errors: finalErrors,
   };
@@ -629,7 +751,9 @@ function applySseEvent(state: PipelineState, event: SseEvent): PipelineState {
 export function usePipelineStream(): UsePipelineStreamReturn {
   const [state, setState] = useState<PipelineState>(initialState);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const readerRef = useRef<ReadableStreamDefaultReader<Uint8Array> | null>(null);
+  const readerRef = useRef<ReadableStreamDefaultReader<Uint8Array> | null>(
+    null,
+  );
   const reset = useCallback(() => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -642,45 +766,61 @@ export function usePipelineStream(): UsePipelineStreamReturn {
     setState(initialState);
   }, []);
 
-  const consumeStream = useCallback(async (reader: ReadableStreamDefaultReader<Uint8Array>) => {
-    const decoder = new TextDecoder("utf-8");
-    let buffer = "";
-    try {
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        if (!value) continue;
-        buffer += decoder.decode(value, { stream: true });
-        const events = parseSseEvent(buffer);
-        if (events.length > 0) {
-          setState((current) => events.reduce(applySseEvent, current));
-          const lastEventIndex = buffer.lastIndexOf("\n\n");
-          buffer = lastEventIndex === -1 ? "" : buffer.slice(lastEventIndex + 2);
+  const consumeStream = useCallback(
+    async (reader: ReadableStreamDefaultReader<Uint8Array>) => {
+      const decoder = new TextDecoder("utf-8");
+      let buffer = "";
+      try {
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          if (!value) continue;
+          buffer += decoder.decode(value, { stream: true });
+          const events = parseSseEvent(buffer);
+          if (events.length > 0) {
+            setState((current) => events.reduce(applySseEvent, current));
+            const lastEventIndex = buffer.lastIndexOf("\n\n");
+            buffer =
+              lastEventIndex === -1 ? "" : buffer.slice(lastEventIndex + 2);
+          }
         }
+        const trailingEvents = parseSseEvent(buffer);
+        if (trailingEvents.length > 0) {
+          setState((current) => trailingEvents.reduce(applySseEvent, current));
+        }
+        setState((current) =>
+          current.phase === "streaming"
+            ? { ...current, phase: "done" }
+            : current,
+        );
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Stream gagal dibaca.";
+        setState((current) => ({
+          ...current,
+          phase: "error",
+          errors: [
+            ...current.errors,
+            {
+              stage: "pipeline",
+              message: "STREAM_READ_ERROR",
+              detail: message,
+            },
+          ],
+        }));
+      } finally {
+        reader.releaseLock();
+        readerRef.current = null;
       }
-      const trailingEvents = parseSseEvent(buffer);
-      if (trailingEvents.length > 0) {
-        setState((current) => trailingEvents.reduce(applySseEvent, current));
-      }
-      setState((current) => (current.phase === "streaming" ? { ...current, phase: "done" } : current));
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Stream gagal dibaca.";
-      setState((current) => ({
-        ...current,
-        phase: "error",
-        errors: [
-          ...current.errors,
-          { stage: "pipeline", message: "STREAM_READ_ERROR", detail: message },
-        ],
-      }));
-    } finally {
-      reader.releaseLock();
-      readerRef.current = null;
-    }
-  }, []);
+    },
+    [],
+  );
 
   const submitAudio = useCallback(
-    async (audioBlob: Blob, mimeType: string): Promise<PipelineActionResult> => {
+    async (
+      audioBlob: Blob,
+      mimeType: string,
+    ): Promise<PipelineActionResult> => {
       if (!audioBlob) {
         return { error: "Audio kosong, tidak dapat dikirim." };
       }
@@ -696,7 +836,11 @@ export function usePipelineStream(): UsePipelineStreamReturn {
       abortControllerRef.current = controller;
 
       const form = new FormData();
-      form.append("audio", audioBlob, `recording.${(mimeType || "audio/webm").split("/").pop() || "webm"}`);
+      form.append(
+        "audio",
+        audioBlob,
+        `recording.${(mimeType || "audio/webm").split("/").pop() || "webm"}`,
+      );
       form.append("mime_type", mimeType || "audio/webm");
 
       setState((current) => ({
@@ -716,13 +860,18 @@ export function usePipelineStream(): UsePipelineStreamReturn {
           },
         });
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Gagal menghubungi backend.";
+        const message =
+          error instanceof Error ? error.message : "Gagal menghubungi backend.";
         setState((current) => ({
           ...current,
           phase: "error",
           errors: [
             ...current.errors,
-            { stage: "pipeline", message: "BACKEND_UNREACHABLE", detail: message },
+            {
+              stage: "pipeline",
+              message: "BACKEND_UNREACHABLE",
+              detail: message,
+            },
           ],
         }));
         return { error: message };

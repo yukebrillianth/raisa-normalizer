@@ -51,22 +51,33 @@ export function PipelineConsole() {
 
   const providerInfo = useMemo(() => {
     const parts: string[] = [];
-    if (state.providerInfo.provider) parts.push(`provider=${state.providerInfo.provider}`);
-    if (state.providerInfo.model) parts.push(`model=${state.providerInfo.model}`);
+    if (state.providerInfo.provider)
+      parts.push(`provider=${state.providerInfo.provider}`);
+    if (state.providerInfo.model)
+      parts.push(`model=${state.providerInfo.model}`);
     if (state.providerInfo.embedding) {
       parts.push(
         `embedding=${state.providerInfo.embedding}${
-          state.providerInfo.embeddingDim ? `(${state.providerInfo.embeddingDim})` : ""
+          state.providerInfo.embeddingDim
+            ? `(${state.providerInfo.embeddingDim})`
+            : ""
         }`,
       );
     }
-    return parts.length > 0 ? parts.join(" | ") : "Menunggu metadata provider dari pipeline.";
+    return parts.length > 0
+      ? parts.join(" | ")
+      : "Menunggu metadata provider dari pipeline.";
   }, [state.providerInfo]);
 
-  const llmSelectionRank = state.llmSelection?.selected_rank ?? 0;
-  const llmSelectionReason = state.llmSelection?.reason ?? "Menunggu hasil seleksi LLM dari pipeline.";
-  const spokenAnswer = state.spokenAnswer || state.finalAnswer || "Menunggu spoken_answer dari pipeline.";
-  const finalAnswer = state.finalAnswer || "Menunggu jawaban final dari pipeline.";
+  const llmSelectionRank = state.llmSelection?.selected_rank ?? null;
+  const llmSelectionReason =
+    state.llmSelection?.reason ?? "Menunggu hasil seleksi LLM dari pipeline.";
+  const spokenAnswer =
+    state.spokenAnswer ||
+    state.finalAnswer ||
+    "Menunggu spoken_answer dari pipeline.";
+  const finalAnswer =
+    state.finalAnswer || "Menunggu jawaban final dari pipeline.";
 
   const baselineDetail = useMemo(() => {
     if (state.thresholdGateSkipped) {
@@ -95,7 +106,12 @@ export function PipelineConsole() {
     }
     overrides.baseline_rerank = baselineDetail;
     return overrides;
-  }, [state.transcript, state.normalizedQuery, state.candidates.length, baselineDetail]);
+  }, [
+    state.transcript,
+    state.normalizedQuery,
+    state.candidates.length,
+    baselineDetail,
+  ]);
 
   const displayStages = useMemo(
     () =>
@@ -108,7 +124,9 @@ export function PipelineConsole() {
 
   const hasTranscript = Boolean(state.transcript || state.normalizedQuery);
   const hasCandidates = state.candidates.length > 0;
-  const hasLlmSelection = Boolean(state.llmSelection);
+  const hasLlmSelection = Boolean(
+    state.llmSelection || state.finalAnswer || state.spokenAnswer,
+  );
 
   return (
     <>
@@ -156,7 +174,9 @@ export function PipelineConsole() {
             />
           ) : null}
 
-          {hasCandidates ? <RetrievalCandidates candidates={state.candidates} /> : null}
+          {hasCandidates ? (
+            <RetrievalCandidates candidates={state.candidates} />
+          ) : null}
 
           {hasLlmSelection ? (
             <LLMSelection

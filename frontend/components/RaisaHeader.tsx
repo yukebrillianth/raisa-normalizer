@@ -1,11 +1,15 @@
 "use client";
 
+import Image from "next/image";
+
 export function RaisaHeader() {
   return (
     <header className="flex items-center gap-4 px-6 py-4 bg-surface-0">
       <div className="flex items-center gap-3">
+        {/* ITS LOGO */}
+        <Image src="/logo.png" alt="ITS Logo" width={90} height={90} />
         {/* ITS accent bar */}
-        <div className="w-1 h-8 rounded-full bg-its-blue" />
+        <div className="w-0.25 h-12 rounded-full bg-its-blue" />
         <div>
           <h1 className="font-display text-xl tracking-tight text-its-cover leading-tight">
             RAISA
